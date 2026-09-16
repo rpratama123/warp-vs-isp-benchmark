@@ -68,8 +68,10 @@ target time, the next probe starts promptly and the actual elapsed time is
 recorded; the runner does not issue multiple catch-up probes at once. Loaded
 ping continues until the transfer ends, so its sample count can be lower than
 `ceil(transfer duration / interval)` when replies are slow or probes time out.
-A completed loaded-ping series starts within one interval of transfer start and
-its final probe starts no earlier than one probe timeout before transfer end.
+A completed loaded-ping series starts within one interval of transfer start. Its
+final probe starts no earlier than one probe timeout plus one scheduling interval
+before transfer end, allowing for a non-overlapping timeout that crosses the
+final cadence slot.
 
 At a sustained 300 Mbps for all transfers across seven targets and both phases,
 the nominal application payload is approximately 10.5 GB for Quick and 47.3 GB
@@ -260,6 +262,32 @@ field names and obvious local identity keys.
 
 Results remain local unless the user explicitly handles them. The runner and
 viewer perform no telemetry or automatic uploads.
+
+## Windows Runner Acceptance
+
+Run this checklist on clean Windows x64 systems under both Windows PowerShell
+5.1 and PowerShell 7. Administrator rights and Python must not be present or
+required.
+
+- Run `powershell.exe -NoProfile -File tests/warp-bench.tests.ps1` and
+  `pwsh -NoProfile -File tests/warp-bench.tests.ps1` from a checkout.
+- Dot-source `scripts/warp-bench.ps1` and confirm that no benchmark starts.
+- Test `iwr -useb <release URL>/warp-bench.ps1 | iex`; embedded target and
+  binary metadata must work without repository files beside the script.
+- Test once with compatible iperf3 3.x on `PATH`, then without it. The latter
+  must download the pinned ZIP, verify SHA-256, safely extract it under the
+  temporary directory, self-check it, and remove it after exit.
+- Complete Quick and Extended runs. Confirm the same pinned IPv4 addresses and
+  ports appear in both phases and `npm test` validates each resulting JSON
+  after it is added temporarily as a `results-*.json` fixture.
+- Exercise a busy server, blocked ICMP, failed trace, route mismatch, explicit
+  unverified continuation, baseline-only exit, and Ctrl+C. Confirm unavailable
+  throughput is never zero and each checkpoint remains parseable.
+- Inspect `results.json` for client addresses, local paths, host/user identity,
+  raw trace text, and raw iperf output. None may be retained.
+- Confirm direct routing reports `warp=off`, WARP routing reports `warp=on` or
+  `warp=plus`, and explain that this HTTPS check does not prove the ICMP or
+  iperf route.
 
 ## Interpretation Limitations
 

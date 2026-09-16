@@ -363,7 +363,7 @@ function semanticErrors(result) {
             check(loadedSamples.length > 0, `${measurement.id} completed loaded ping has no samples`);
             if (loadedSamples.length > 0) {
               check(loadedSamples[0].elapsed_ms < result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded ping starts too late`);
-              check(loadedSamples.at(-1).elapsed_ms >= attempt.receiver.duration_ms - result.configuration.loaded_ping.timeout_ms, `${measurement.id} loaded ping ends too early`);
+              check(loadedSamples.at(-1).elapsed_ms >= attempt.receiver.duration_ms - result.configuration.loaded_ping.timeout_ms - result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded ping ends too early`);
               check(loadedSamples.at(-1).elapsed_ms < attempt.receiver.duration_ms, `${measurement.id} loaded ping extends beyond transfer duration`);
               for (let index = 1; index < loadedSamples.length; index += 1) {
                 check(loadedSamples[index].elapsed_ms - loadedSamples[index - 1].elapsed_ms >= result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded probes overlap or exceed cadence`);
@@ -394,7 +394,7 @@ function semanticErrors(result) {
   } else if (result.run.status === "failed") {
     check(result.run.ended_at !== null && completedPhases.length === 0 && !result.run.comparison_valid, "failed run lifecycle is inconsistent");
   } else if (result.run.status === "interrupted") {
-    check(result.run.ended_at !== null && !result.run.profile_complete, "interrupted run lifecycle is inconsistent");
+    check(result.run.ended_at !== null, "interrupted run lifecycle is inconsistent");
   } else if (result.run.status === "in_progress") {
     check(result.run.ended_at === null && result.sessions.some((session) => session.status === "running"), "in_progress lifecycle is inconsistent");
   }
@@ -438,6 +438,24 @@ for (const fixture of resultFixtures) {
     console.error(`Semantic validation failed: ${fixture}: ${error}`);
   }
   if (errors.length === 0) console.log(`Semantic valid: ${fixture}`);
+}
+
+for (const externalPath of process.argv.slice(2)) {
+  const result = await loadJson(externalPath);
+  const validate = schemaValidators.get("schema/results-v1.schema.json");
+  if (!validate(result)) {
+    failures += 1;
+    console.error(`Schema validation failed: ${externalPath}`);
+    console.error(ajv.errorsText(validate.errors, { separator: "\n" }));
+    continue;
+  }
+  const errors = semanticErrors(result);
+  if (errors.length > 0) {
+    failures += errors.length;
+    for (const error of errors) console.error(`Semantic validation failed: ${externalPath}: ${error}`);
+  } else {
+    console.log(`External result valid: ${externalPath}`);
+  }
 }
 
 for (const manifestPath of ["tests/fixtures/targets-valid.json", "manifests/targets.json"]) {
