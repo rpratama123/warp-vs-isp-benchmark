@@ -508,7 +508,7 @@ for (const [name, fixture] of Object.entries({ complete, partial, failed, interr
   const content = `${JSON.stringify(fixture, null, 2)}\n`;
   if (checkOnly) {
     const existing = await readFile(path, "utf8").catch(() => null);
-    if (existing !== content) {
+    if (existing?.replace(/\r\n/g, "\n") !== content) {
       stale = true;
       console.error(`Generated fixture is stale: results-${name}.json`);
     }
