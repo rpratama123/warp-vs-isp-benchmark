@@ -5,13 +5,10 @@ on:
   pull_request:
 
 jobs:
-  test:
+  powershell-51:
     runs-on: windows-latest
     env:
-      WARP_BENCH_TEST_OUTPUT: ${{ runner.temp }}/runner-result.json
-    strategy:
-      matrix:
-        shell: [powershell, pwsh]
+      WARP_BENCH_TEST_OUTPUT: runner-result.json
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -21,8 +18,27 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: PowerShell runner tests
-        shell: ${{ matrix.shell }}
+        shell: powershell
         run: ./tests/warp-bench.tests.ps1
       - name: Validate runner-produced result
-        shell: ${{ matrix.shell }}
+        shell: powershell
+        run: node tests/validate-contracts.mjs "$env:WARP_BENCH_TEST_OUTPUT"
+
+  powershell-7:
+    runs-on: windows-latest
+    env:
+      WARP_BENCH_TEST_OUTPUT: runner-result.json
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: PowerShell runner tests
+        shell: pwsh
+        run: ./tests/warp-bench.tests.ps1
+      - name: Validate runner-produced result
+        shell: pwsh
         run: node tests/validate-contracts.mjs "$env:WARP_BENCH_TEST_OUTPUT"
