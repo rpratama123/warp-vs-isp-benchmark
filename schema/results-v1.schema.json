@@ -1,0 +1,650 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:warp-vs-isp-benchmark:schema:results-v1",
+  "title": "WARP vs ISP Benchmark Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run",
+    "environment",
+    "configuration",
+    "privacy",
+    "targets",
+    "sessions",
+    "phases",
+    "measurements",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "run": { "$ref": "#/$defs/run" },
+    "environment": { "$ref": "#/$defs/environment" },
+    "configuration": { "$ref": "#/$defs/configuration" },
+    "privacy": { "$ref": "#/$defs/privacy" },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/selectedTarget" }
+    },
+    "sessions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/session" }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/phase" }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/pingMeasurement" },
+          { "$ref": "#/$defs/tcpMeasurement" }
+        ]
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/diagnostic" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?Z$"
+    },
+    "nullableTimestamp": {
+      "oneOf": [
+        { "$ref": "#/$defs/timestamp" },
+        { "type": "null" }
+      ]
+    },
+    "nullableNonnegativeNumber": {
+      "type": ["number", "null"],
+      "minimum": 0
+    },
+    "nullableNonnegativeInteger": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "category", "retryable", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "category": {
+          "enum": [
+            "configuration",
+            "dependency",
+            "dns",
+            "local_system",
+            "network",
+            "remote_server",
+            "route_verification",
+            "user",
+            "unknown"
+          ]
+        },
+        "retryable": { "type": "boolean" },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "runner_version",
+        "target_manifest_version",
+        "profile_complete",
+        "comparison_valid",
+        "started_at",
+        "updated_at",
+        "ended_at",
+        "status"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "runner_version": { "$ref": "#/$defs/version" },
+        "target_manifest_version": { "$ref": "#/$defs/version" },
+        "profile_complete": { "type": "boolean" },
+        "comparison_valid": { "type": "boolean" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "updated_at": { "$ref": "#/$defs/timestamp" },
+        "ended_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "status": {
+          "enum": [
+            "in_progress",
+            "completed",
+            "baseline_only",
+            "partial",
+            "interrupted",
+            "failed"
+          ]
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["os", "architecture", "runner", "tools"],
+      "properties": {
+        "os": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["family", "name", "version"],
+          "properties": {
+            "family": { "enum": ["windows", "linux", "macos"] },
+            "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+            "version": { "type": "string", "minLength": 1, "maxLength": 80 }
+          }
+        },
+        "architecture": { "enum": ["x86_64", "aarch64"] },
+        "runner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["implementation", "version"],
+          "properties": {
+            "implementation": { "enum": ["powershell", "bash"] },
+            "version": { "$ref": "#/$defs/version" }
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version", "provisioning", "capabilities"],
+            "properties": {
+              "name": { "enum": ["ping", "iperf3", "jq"] },
+              "version": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "provisioning": { "enum": ["system", "temporary_download"] },
+              "capabilities": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": { "$ref": "#/$defs/id" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "ip_version",
+        "idle_ping",
+        "loaded_ping",
+        "tcp",
+        "timing"
+      ],
+      "properties": {
+        "profile": { "enum": ["quick", "extended"] },
+        "ip_version": { "const": 4 },
+        "idle_ping": { "$ref": "#/$defs/pingSettings" },
+        "loaded_ping": { "$ref": "#/$defs/loadedPingSettings" },
+        "tcp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["duration_seconds", "repetitions_per_direction", "streams", "directions"],
+          "properties": {
+            "duration_seconds": { "type": "integer", "minimum": 1, "maximum": 3600 },
+            "repetitions_per_direction": { "type": "integer", "minimum": 1, "maximum": 20 },
+            "streams": { "const": 1 },
+            "directions": {
+              "type": "array",
+              "const": ["download", "upload"]
+            }
+          }
+        },
+        "timing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "route_settle_seconds",
+            "between_transfers_seconds",
+            "between_targets_seconds",
+            "server_busy_retries",
+            "retry_backoff_seconds"
+          ],
+          "properties": {
+            "route_settle_seconds": { "type": "integer", "minimum": 0, "maximum": 300 },
+            "between_transfers_seconds": { "type": "integer", "minimum": 0, "maximum": 300 },
+            "between_targets_seconds": { "type": "integer", "minimum": 0, "maximum": 300 },
+            "server_busy_retries": { "type": "integer", "minimum": 0, "maximum": 10 },
+            "retry_backoff_seconds": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 1, "maximum": 300 }
+            }
+          }
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_version",
+        "sanitization_applied",
+        "destination_ipv4_retained",
+        "client_address_retained",
+        "local_identity_retained",
+        "raw_tool_output_retained"
+      ],
+      "properties": {
+        "policy_version": { "const": "1.0.0" },
+        "sanitization_applied": { "const": true },
+        "destination_ipv4_retained": { "const": true },
+        "client_address_retained": { "const": false },
+        "local_identity_retained": { "const": false },
+        "raw_tool_output_retained": { "const": false }
+      }
+    },
+    "selectedTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "manifest_target_id", "label", "country_code", "city", "location_confidence", "hostname", "endpoint"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "manifest_target_id": { "$ref": "#/$defs/id" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "country_code": { "type": "string", "pattern": "^[A-Z]{2}$" },
+        "city": { "type": ["string", "null"], "minLength": 1, "maxLength": 100 },
+        "location_confidence": { "enum": ["operator_documented", "provider_advertised", "directory_listed", "unverified"] },
+        "hostname": { "type": "string", "minLength": 1, "maxLength": 253 },
+        "endpoint": { "$ref": "#/$defs/endpoint" }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ipv4", "iperf_port"],
+      "properties": {
+        "ipv4": {
+          "type": "string",
+          "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})\\.){3}(?:25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})$"
+        },
+        "iperf_port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "reason", "previous_session_id", "gap_seconds", "route_reverified", "started_at", "ended_at", "status"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "reason": { "enum": ["initial", "resume"] },
+        "previous_session_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/id" },
+            { "type": "null" }
+          ]
+        },
+        "gap_seconds": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "route_reverified": { "type": "boolean" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "ended_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "status": { "enum": ["running", "completed", "interrupted"] }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "ordinal", "requested_route", "status", "started_at", "ended_at", "verification_disposition", "verification_checks"],
+      "properties": {
+        "id": { "enum": ["baseline", "warp"] },
+        "ordinal": { "type": "integer", "minimum": 1, "maximum": 2 },
+        "requested_route": { "enum": ["direct", "warp"] },
+        "status": { "enum": ["pending", "running", "completed", "partial", "skipped", "interrupted", "failed"] },
+        "started_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "ended_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "verification_disposition": { "enum": ["verified", "unverified_continued", "verification_failed", "not_performed"] },
+        "verification_checks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/verificationCheck" }
+        }
+      }
+    },
+    "verificationCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "session_id", "position", "checked_at", "request_status", "expected_warp_states", "observed_warp_state", "colo", "match", "evidence_scope", "error"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "session_id": { "$ref": "#/$defs/id" },
+        "position": { "enum": ["before_phase", "after_phase", "resume"] },
+        "checked_at": { "$ref": "#/$defs/timestamp" },
+        "request_status": { "enum": ["completed", "failed", "interrupted"] },
+        "expected_warp_states": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["off", "on", "plus"] }
+        },
+        "observed_warp_state": { "enum": ["off", "on", "plus", "unknown"] },
+        "colo": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Z]{3}$"
+        },
+        "match": { "enum": ["matched", "mismatched", "indeterminate"] },
+        "evidence_scope": { "const": "cloudflare_https_trace" },
+        "error": {
+          "oneOf": [
+            { "$ref": "#/$defs/error" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "pingSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested_probes", "interval_ms", "timeout_ms", "payload_bytes"],
+      "properties": {
+        "requested_probes": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "interval_ms": { "type": "integer", "minimum": 100, "maximum": 60000 },
+        "timeout_ms": { "type": "integer", "minimum": 100, "maximum": 60000 },
+        "payload_bytes": { "type": "integer", "minimum": 0, "maximum": 65500 }
+      }
+    },
+    "loadedPingSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interval_ms", "timeout_ms", "payload_bytes"],
+      "properties": {
+        "interval_ms": { "type": "integer", "minimum": 100, "maximum": 60000 },
+        "timeout_ms": { "type": "integer", "minimum": 100, "maximum": 60000 },
+        "payload_bytes": { "type": "integer", "minimum": 0, "maximum": 65500 }
+      }
+    },
+    "pingSample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence", "elapsed_ms", "outcome", "rtt_us", "error_code"],
+      "properties": {
+        "sequence": { "type": "integer", "minimum": 1 },
+        "elapsed_ms": { "type": "integer", "minimum": 0 },
+        "outcome": { "enum": ["reply", "timeout", "local_error"] },
+        "rtt_us": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "error_code": {
+          "type": ["string", "null"],
+          "maxLength": 80,
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "outcome": { "const": "reply" } } },
+          "then": {
+            "properties": {
+              "rtt_us": { "type": "integer", "minimum": 0 },
+              "error_code": { "type": "null" }
+            }
+          },
+          "else": { "properties": { "rtt_us": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "outcome": { "const": "local_error" } } },
+          "then": { "properties": { "error_code": { "type": "string" } } },
+          "else": { "properties": { "error_code": { "type": "null" } } }
+        }
+      ]
+    },
+    "pingSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "probes_recorded",
+        "probes_sent",
+        "replies_received",
+        "timed_out",
+        "local_failures",
+        "reply_loss_percent",
+        "rtt_min_ms",
+        "rtt_mean_ms",
+        "rtt_median_ms",
+        "rtt_p95_ms",
+        "rtt_max_ms",
+        "rtt_stddev_ms",
+        "rtt_adjacent_mean_abs_diff_ms"
+      ],
+      "properties": {
+        "probes_recorded": { "type": "integer", "minimum": 0 },
+        "probes_sent": { "type": "integer", "minimum": 0 },
+        "replies_received": { "type": "integer", "minimum": 0 },
+        "timed_out": { "type": "integer", "minimum": 0 },
+        "local_failures": { "type": "integer", "minimum": 0 },
+        "reply_loss_percent": { "type": ["number", "null"], "minimum": 0, "maximum": 100 },
+        "rtt_min_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" },
+        "rtt_mean_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" },
+        "rtt_median_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" },
+        "rtt_p95_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" },
+        "rtt_max_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" },
+        "rtt_stddev_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" },
+        "rtt_adjacent_mean_abs_diff_ms": { "$ref": "#/$defs/nullableNonnegativeNumber" }
+      }
+    },
+    "pingResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "samples", "summary", "error"],
+      "properties": {
+        "status": { "enum": ["completed", "failed", "interrupted", "unavailable"] },
+        "samples": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pingSample" }
+        },
+        "summary": {
+          "oneOf": [
+            { "$ref": "#/$defs/pingSummary" },
+            { "type": "null" }
+          ]
+        },
+        "error": {
+          "oneOf": [
+            { "$ref": "#/$defs/error" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "pingMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "phase_id", "target_id", "session_id", "kind", "status", "started_at", "ended_at", "endpoint", "settings", "samples", "summary", "error"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "phase_id": { "enum": ["baseline", "warp"] },
+        "target_id": { "$ref": "#/$defs/id" },
+        "session_id": { "$ref": "#/$defs/id" },
+        "kind": { "const": "idle_ping" },
+        "status": { "enum": ["pending", "running", "completed", "failed", "skipped", "interrupted"] },
+        "started_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "ended_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "endpoint": { "$ref": "#/$defs/endpoint" },
+        "settings": { "$ref": "#/$defs/pingSettings" },
+        "samples": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/pingSample" }
+        },
+        "summary": {
+          "oneOf": [
+            { "$ref": "#/$defs/pingSummary" },
+            { "type": "null" }
+          ]
+        },
+        "error": {
+          "oneOf": [
+            { "$ref": "#/$defs/error" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "transferSide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bytes", "duration_ms", "bits_per_second", "retransmits"],
+      "properties": {
+        "bytes": { "type": "integer", "minimum": 0 },
+        "duration_ms": { "type": "integer", "minimum": 1 },
+        "bits_per_second": { "type": "integer", "minimum": 0 },
+        "retransmits": { "$ref": "#/$defs/nullableNonnegativeInteger" }
+      }
+    },
+    "transferInterval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "start_ms", "end_ms", "receiver_bytes", "receiver_bits_per_second", "sender_bits_per_second", "retransmits", "omitted"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "start_ms": { "type": "integer", "minimum": 0 },
+        "end_ms": { "type": "integer", "minimum": 1 },
+        "receiver_bytes": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "receiver_bits_per_second": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "sender_bits_per_second": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "retransmits": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "omitted": { "type": "boolean" }
+      }
+    },
+    "transferAttempt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["number", "session_id", "status", "started_at", "ended_at", "sender", "receiver", "intervals", "loaded_ping", "error"],
+      "properties": {
+        "number": { "type": "integer", "minimum": 1 },
+        "session_id": { "$ref": "#/$defs/id" },
+        "status": { "enum": ["running", "completed", "failed", "interrupted"] },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "ended_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "sender": {
+          "oneOf": [
+            { "$ref": "#/$defs/transferSide" },
+            { "type": "null" }
+          ]
+        },
+        "receiver": {
+          "oneOf": [
+            { "$ref": "#/$defs/transferSide" },
+            { "type": "null" }
+          ]
+        },
+        "intervals": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/transferInterval" }
+        },
+        "loaded_ping": {
+          "oneOf": [
+            { "$ref": "#/$defs/pingResult" },
+            { "type": "null" }
+          ]
+        },
+        "error": {
+          "oneOf": [
+            { "$ref": "#/$defs/error" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "tcpMeasurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "phase_id", "target_id", "kind", "status", "started_at", "ended_at", "endpoint", "settings", "selected_attempt", "attempts", "error"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "phase_id": { "enum": ["baseline", "warp"] },
+        "target_id": { "$ref": "#/$defs/id" },
+        "kind": { "const": "tcp_transfer" },
+        "status": { "enum": ["pending", "running", "completed", "failed", "skipped", "interrupted"] },
+        "started_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "ended_at": { "$ref": "#/$defs/nullableTimestamp" },
+        "endpoint": { "$ref": "#/$defs/endpoint" },
+        "settings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["protocol", "direction", "repetition", "duration_seconds", "streams"],
+          "properties": {
+            "protocol": { "const": "tcp" },
+            "direction": { "enum": ["download", "upload"] },
+            "repetition": { "type": "integer", "minimum": 1 },
+            "duration_seconds": { "type": "integer", "minimum": 1, "maximum": 3600 },
+            "streams": { "const": 1 }
+          }
+        },
+        "selected_attempt": { "$ref": "#/$defs/nullableNonnegativeInteger" },
+        "attempts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/transferAttempt" }
+        },
+        "error": {
+          "oneOf": [
+            { "$ref": "#/$defs/error" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timestamp", "severity", "code", "message", "phase_id", "target_id", "measurement_id"],
+      "properties": {
+        "timestamp": { "$ref": "#/$defs/timestamp" },
+        "severity": { "enum": ["info", "warning", "error"] },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "message": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "phase_id": {
+          "type": ["string", "null"],
+          "enum": ["baseline", "warp", null]
+        },
+        "target_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/id" },
+            { "type": "null" }
+          ]
+        },
+        "measurement_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/id" },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  }
+}

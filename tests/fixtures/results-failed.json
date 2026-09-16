@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0.0",
+  "run": {
+    "id": "run-failed",
+    "runner_version": "0.1.0",
+    "target_manifest_version": "1.0.0",
+    "profile_complete": false,
+    "comparison_valid": false,
+    "started_at": "2026-09-16T10:00:00Z",
+    "updated_at": "2026-09-16T10:01:00Z",
+    "ended_at": "2026-09-16T10:01:00Z",
+    "status": "failed"
+  },
+  "environment": {
+    "os": {
+      "family": "windows",
+      "name": "Windows",
+      "version": "11"
+    },
+    "architecture": "x86_64",
+    "runner": {
+      "implementation": "powershell",
+      "version": "0.1.0"
+    },
+    "tools": [
+      {
+        "name": "ping",
+        "version": ".NET 4.8",
+        "provisioning": "system",
+        "capabilities": [
+          "ipv4",
+          "rtt_microseconds"
+        ]
+      },
+      {
+        "name": "iperf3",
+        "version": "3.19.1",
+        "provisioning": "temporary_download",
+        "capabilities": [
+          "json",
+          "reverse",
+          "intervals"
+        ]
+      }
+    ]
+  },
+  "configuration": {
+    "profile": "quick",
+    "ip_version": 4,
+    "idle_ping": {
+      "requested_probes": 30,
+      "interval_ms": 1000,
+      "timeout_ms": 2000,
+      "payload_bytes": 32
+    },
+    "loaded_ping": {
+      "interval_ms": 500,
+      "timeout_ms": 1000,
+      "payload_bytes": 32
+    },
+    "tcp": {
+      "duration_seconds": 10,
+      "repetitions_per_direction": 1,
+      "streams": 1,
+      "directions": [
+        "download",
+        "upload"
+      ]
+    },
+    "timing": {
+      "route_settle_seconds": 5,
+      "between_transfers_seconds": 2,
+      "between_targets_seconds": 3,
+      "server_busy_retries": 2,
+      "retry_backoff_seconds": [
+        5,
+        10
+      ]
+    }
+  },
+  "privacy": {
+    "policy_version": "1.0.0",
+    "sanitization_applied": true,
+    "destination_ipv4_retained": true,
+    "client_address_retained": false,
+    "local_identity_retained": false,
+    "raw_tool_output_retained": false
+  },
+  "targets": [
+    {
+      "id": "singapore",
+      "manifest_target_id": "sg-singapore-example",
+      "label": "Singapore",
+      "country_code": "SG",
+      "city": "Singapore",
+      "location_confidence": "directory_listed",
+      "hostname": "iperf.example.test",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "session-1",
+      "reason": "initial",
+      "previous_session_id": null,
+      "gap_seconds": null,
+      "route_reverified": true,
+      "started_at": "2026-09-16T10:00:00Z",
+      "ended_at": "2026-09-16T10:01:00Z",
+      "status": "completed"
+    }
+  ],
+  "phases": [
+    {
+      "id": "baseline",
+      "ordinal": 1,
+      "requested_route": "direct",
+      "status": "failed",
+      "started_at": "2026-09-16T10:01:00Z",
+      "ended_at": "2026-09-16T10:01:00Z",
+      "verification_disposition": "verification_failed",
+      "verification_checks": [
+        {
+          "id": "baseline-before-failed",
+          "session_id": "session-1",
+          "position": "before_phase",
+          "checked_at": "2026-09-16T10:01:00Z",
+          "request_status": "failed",
+          "expected_warp_states": [
+            "off"
+          ],
+          "observed_warp_state": "unknown",
+          "colo": null,
+          "match": "indeterminate",
+          "evidence_scope": "cloudflare_https_trace",
+          "error": {
+            "code": "TRACE_UNREACHABLE",
+            "category": "route_verification",
+            "retryable": true,
+            "message": "Cloudflare trace could not be reached."
+          }
+        }
+      ]
+    },
+    {
+      "id": "warp",
+      "ordinal": 2,
+      "requested_route": "warp",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "verification_disposition": "not_performed",
+      "verification_checks": []
+    }
+  ],
+  "measurements": [
+    {
+      "id": "baseline-singapore-idle",
+      "phase_id": "baseline",
+      "target_id": "singapore",
+      "session_id": "session-1",
+      "kind": "idle_ping",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "requested_probes": 30,
+        "interval_ms": 1000,
+        "timeout_ms": 2000,
+        "payload_bytes": 32
+      },
+      "samples": [],
+      "summary": null,
+      "error": null
+    },
+    {
+      "id": "baseline-singapore-download-1",
+      "phase_id": "baseline",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "download",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": null,
+      "attempts": [],
+      "error": null
+    },
+    {
+      "id": "baseline-singapore-upload-1",
+      "phase_id": "baseline",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "upload",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": null,
+      "attempts": [],
+      "error": null
+    },
+    {
+      "id": "warp-singapore-idle",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "session_id": "session-1",
+      "kind": "idle_ping",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "requested_probes": 30,
+        "interval_ms": 1000,
+        "timeout_ms": 2000,
+        "payload_bytes": 32
+      },
+      "samples": [],
+      "summary": null,
+      "error": null
+    },
+    {
+      "id": "warp-singapore-download-1",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "download",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": null,
+      "attempts": [],
+      "error": null
+    },
+    {
+      "id": "warp-singapore-upload-1",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "pending",
+      "started_at": null,
+      "ended_at": null,
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "upload",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": null,
+      "attempts": [],
+      "error": null
+    }
+  ],
+  "diagnostics": [
+    {
+      "timestamp": "2026-09-16T10:01:00Z",
+      "severity": "error",
+      "code": "BASELINE_NOT_VERIFIED",
+      "message": "The benchmark stopped before measurements began.",
+      "phase_id": "baseline",
+      "target_id": null,
+      "measurement_id": null
+    }
+  ]
+}

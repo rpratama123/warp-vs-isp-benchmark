@@ -1,0 +1,1472 @@
+{
+  "schema_version": "1.0.0",
+  "run": {
+    "id": "run-partial",
+    "runner_version": "0.1.0",
+    "target_manifest_version": "1.0.0",
+    "profile_complete": false,
+    "comparison_valid": true,
+    "started_at": "2026-09-16T10:00:00Z",
+    "updated_at": "2026-09-16T11:00:00Z",
+    "ended_at": "2026-09-16T11:00:00Z",
+    "status": "partial"
+  },
+  "environment": {
+    "os": {
+      "family": "windows",
+      "name": "Windows",
+      "version": "11"
+    },
+    "architecture": "x86_64",
+    "runner": {
+      "implementation": "powershell",
+      "version": "0.1.0"
+    },
+    "tools": [
+      {
+        "name": "ping",
+        "version": ".NET 4.8",
+        "provisioning": "system",
+        "capabilities": [
+          "ipv4",
+          "rtt_microseconds"
+        ]
+      },
+      {
+        "name": "iperf3",
+        "version": "3.19.1",
+        "provisioning": "temporary_download",
+        "capabilities": [
+          "json",
+          "reverse",
+          "intervals"
+        ]
+      }
+    ]
+  },
+  "configuration": {
+    "profile": "quick",
+    "ip_version": 4,
+    "idle_ping": {
+      "requested_probes": 30,
+      "interval_ms": 1000,
+      "timeout_ms": 2000,
+      "payload_bytes": 32
+    },
+    "loaded_ping": {
+      "interval_ms": 500,
+      "timeout_ms": 1000,
+      "payload_bytes": 32
+    },
+    "tcp": {
+      "duration_seconds": 10,
+      "repetitions_per_direction": 1,
+      "streams": 1,
+      "directions": [
+        "download",
+        "upload"
+      ]
+    },
+    "timing": {
+      "route_settle_seconds": 5,
+      "between_transfers_seconds": 2,
+      "between_targets_seconds": 3,
+      "server_busy_retries": 2,
+      "retry_backoff_seconds": [
+        5,
+        10
+      ]
+    }
+  },
+  "privacy": {
+    "policy_version": "1.0.0",
+    "sanitization_applied": true,
+    "destination_ipv4_retained": true,
+    "client_address_retained": false,
+    "local_identity_retained": false,
+    "raw_tool_output_retained": false
+  },
+  "targets": [
+    {
+      "id": "singapore",
+      "manifest_target_id": "sg-singapore-example",
+      "label": "Singapore",
+      "country_code": "SG",
+      "city": "Singapore",
+      "location_confidence": "directory_listed",
+      "hostname": "iperf.example.test",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "id": "session-1",
+      "reason": "initial",
+      "previous_session_id": null,
+      "gap_seconds": null,
+      "route_reverified": true,
+      "started_at": "2026-09-16T10:00:00Z",
+      "ended_at": "2026-09-16T11:00:00Z",
+      "status": "completed"
+    }
+  ],
+  "phases": [
+    {
+      "id": "baseline",
+      "ordinal": 1,
+      "requested_route": "direct",
+      "status": "completed",
+      "started_at": "2026-09-16T10:01:00Z",
+      "ended_at": "2026-09-16T10:20:00Z",
+      "verification_disposition": "verified",
+      "verification_checks": [
+        {
+          "id": "baseline-before_phase",
+          "session_id": "session-1",
+          "position": "before_phase",
+          "checked_at": "2026-09-16T10:01:00Z",
+          "request_status": "completed",
+          "expected_warp_states": [
+            "off"
+          ],
+          "observed_warp_state": "off",
+          "colo": "CGK",
+          "match": "matched",
+          "evidence_scope": "cloudflare_https_trace",
+          "error": null
+        },
+        {
+          "id": "baseline-after_phase",
+          "session_id": "session-1",
+          "position": "after_phase",
+          "checked_at": "2026-09-16T10:20:00Z",
+          "request_status": "completed",
+          "expected_warp_states": [
+            "off"
+          ],
+          "observed_warp_state": "off",
+          "colo": "CGK",
+          "match": "matched",
+          "evidence_scope": "cloudflare_https_trace",
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "warp",
+      "ordinal": 2,
+      "requested_route": "warp",
+      "status": "completed",
+      "started_at": "2026-09-16T10:31:00Z",
+      "ended_at": "2026-09-16T10:50:00Z",
+      "verification_disposition": "verified",
+      "verification_checks": [
+        {
+          "id": "warp-before_phase",
+          "session_id": "session-1",
+          "position": "before_phase",
+          "checked_at": "2026-09-16T10:31:00Z",
+          "request_status": "completed",
+          "expected_warp_states": [
+            "on",
+            "plus"
+          ],
+          "observed_warp_state": "on",
+          "colo": "CGK",
+          "match": "matched",
+          "evidence_scope": "cloudflare_https_trace",
+          "error": null
+        },
+        {
+          "id": "warp-after_phase",
+          "session_id": "session-1",
+          "position": "after_phase",
+          "checked_at": "2026-09-16T10:50:00Z",
+          "request_status": "completed",
+          "expected_warp_states": [
+            "on",
+            "plus"
+          ],
+          "observed_warp_state": "on",
+          "colo": "CGK",
+          "match": "matched",
+          "evidence_scope": "cloudflare_https_trace",
+          "error": null
+        }
+      ]
+    }
+  ],
+  "measurements": [
+    {
+      "id": "baseline-singapore-idle",
+      "phase_id": "baseline",
+      "target_id": "singapore",
+      "session_id": "session-1",
+      "kind": "idle_ping",
+      "status": "completed",
+      "started_at": "2026-09-16T10:02:00Z",
+      "ended_at": "2026-09-16T10:02:30Z",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "requested_probes": 30,
+        "interval_ms": 1000,
+        "timeout_ms": 2000,
+        "payload_bytes": 32
+      },
+      "samples": [
+        {
+          "sequence": 1,
+          "elapsed_ms": 0,
+          "outcome": "reply",
+          "rtt_us": 15000,
+          "error_code": null
+        },
+        {
+          "sequence": 2,
+          "elapsed_ms": 1000,
+          "outcome": "reply",
+          "rtt_us": 15250,
+          "error_code": null
+        },
+        {
+          "sequence": 3,
+          "elapsed_ms": 2000,
+          "outcome": "reply",
+          "rtt_us": 15500,
+          "error_code": null
+        },
+        {
+          "sequence": 4,
+          "elapsed_ms": 3000,
+          "outcome": "reply",
+          "rtt_us": 15750,
+          "error_code": null
+        },
+        {
+          "sequence": 5,
+          "elapsed_ms": 4000,
+          "outcome": "reply",
+          "rtt_us": 16000,
+          "error_code": null
+        },
+        {
+          "sequence": 6,
+          "elapsed_ms": 5000,
+          "outcome": "reply",
+          "rtt_us": 15000,
+          "error_code": null
+        },
+        {
+          "sequence": 7,
+          "elapsed_ms": 6000,
+          "outcome": "timeout",
+          "rtt_us": null,
+          "error_code": null
+        },
+        {
+          "sequence": 8,
+          "elapsed_ms": 7000,
+          "outcome": "reply",
+          "rtt_us": 15500,
+          "error_code": null
+        },
+        {
+          "sequence": 9,
+          "elapsed_ms": 8000,
+          "outcome": "reply",
+          "rtt_us": 15750,
+          "error_code": null
+        },
+        {
+          "sequence": 10,
+          "elapsed_ms": 9000,
+          "outcome": "reply",
+          "rtt_us": 16000,
+          "error_code": null
+        },
+        {
+          "sequence": 11,
+          "elapsed_ms": 10000,
+          "outcome": "reply",
+          "rtt_us": 15000,
+          "error_code": null
+        },
+        {
+          "sequence": 12,
+          "elapsed_ms": 11000,
+          "outcome": "reply",
+          "rtt_us": 15250,
+          "error_code": null
+        },
+        {
+          "sequence": 13,
+          "elapsed_ms": 12000,
+          "outcome": "reply",
+          "rtt_us": 15500,
+          "error_code": null
+        },
+        {
+          "sequence": 14,
+          "elapsed_ms": 13000,
+          "outcome": "reply",
+          "rtt_us": 15750,
+          "error_code": null
+        },
+        {
+          "sequence": 15,
+          "elapsed_ms": 14000,
+          "outcome": "reply",
+          "rtt_us": 16000,
+          "error_code": null
+        },
+        {
+          "sequence": 16,
+          "elapsed_ms": 15000,
+          "outcome": "reply",
+          "rtt_us": 15000,
+          "error_code": null
+        },
+        {
+          "sequence": 17,
+          "elapsed_ms": 16000,
+          "outcome": "reply",
+          "rtt_us": 15250,
+          "error_code": null
+        },
+        {
+          "sequence": 18,
+          "elapsed_ms": 17000,
+          "outcome": "reply",
+          "rtt_us": 15500,
+          "error_code": null
+        },
+        {
+          "sequence": 19,
+          "elapsed_ms": 18000,
+          "outcome": "reply",
+          "rtt_us": 15750,
+          "error_code": null
+        },
+        {
+          "sequence": 20,
+          "elapsed_ms": 19000,
+          "outcome": "reply",
+          "rtt_us": 16000,
+          "error_code": null
+        },
+        {
+          "sequence": 21,
+          "elapsed_ms": 20000,
+          "outcome": "reply",
+          "rtt_us": 15000,
+          "error_code": null
+        },
+        {
+          "sequence": 22,
+          "elapsed_ms": 21000,
+          "outcome": "reply",
+          "rtt_us": 15250,
+          "error_code": null
+        },
+        {
+          "sequence": 23,
+          "elapsed_ms": 22000,
+          "outcome": "reply",
+          "rtt_us": 15500,
+          "error_code": null
+        },
+        {
+          "sequence": 24,
+          "elapsed_ms": 23000,
+          "outcome": "reply",
+          "rtt_us": 15750,
+          "error_code": null
+        },
+        {
+          "sequence": 25,
+          "elapsed_ms": 24000,
+          "outcome": "reply",
+          "rtt_us": 16000,
+          "error_code": null
+        },
+        {
+          "sequence": 26,
+          "elapsed_ms": 25000,
+          "outcome": "reply",
+          "rtt_us": 15000,
+          "error_code": null
+        },
+        {
+          "sequence": 27,
+          "elapsed_ms": 26000,
+          "outcome": "reply",
+          "rtt_us": 15250,
+          "error_code": null
+        },
+        {
+          "sequence": 28,
+          "elapsed_ms": 27000,
+          "outcome": "reply",
+          "rtt_us": 15500,
+          "error_code": null
+        },
+        {
+          "sequence": 29,
+          "elapsed_ms": 28000,
+          "outcome": "reply",
+          "rtt_us": 15750,
+          "error_code": null
+        },
+        {
+          "sequence": 30,
+          "elapsed_ms": 29000,
+          "outcome": "reply",
+          "rtt_us": 16000,
+          "error_code": null
+        }
+      ],
+      "summary": {
+        "probes_recorded": 30,
+        "probes_sent": 30,
+        "replies_received": 29,
+        "timed_out": 1,
+        "local_failures": 0,
+        "reply_loss_percent": 3.333333,
+        "rtt_min_ms": 15,
+        "rtt_mean_ms": 15.509,
+        "rtt_median_ms": 15.5,
+        "rtt_p95_ms": 16,
+        "rtt_max_ms": 16,
+        "rtt_stddev_ms": 0.356,
+        "rtt_adjacent_mean_abs_diff_ms": 0.389
+      },
+      "error": null
+    },
+    {
+      "id": "baseline-singapore-download-1",
+      "phase_id": "baseline",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "completed",
+      "started_at": "2026-09-16T10:04:00Z",
+      "ended_at": "2026-09-16T10:04:10Z",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "download",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": 1,
+      "attempts": [
+        {
+          "number": 1,
+          "session_id": "session-1",
+          "status": "completed",
+          "started_at": "2026-09-16T10:04:00Z",
+          "ended_at": "2026-09-16T10:04:10Z",
+          "sender": {
+            "bytes": 350100000,
+            "duration_ms": 10000,
+            "bits_per_second": 280080000,
+            "retransmits": null
+          },
+          "receiver": {
+            "bytes": 350000000,
+            "duration_ms": 10000,
+            "bits_per_second": 280000000,
+            "retransmits": null
+          },
+          "intervals": [
+            {
+              "index": 0,
+              "start_ms": 0,
+              "end_ms": 5000,
+              "receiver_bytes": 175000000,
+              "receiver_bits_per_second": 280000000,
+              "sender_bits_per_second": null,
+              "retransmits": null,
+              "omitted": false
+            },
+            {
+              "index": 1,
+              "start_ms": 5000,
+              "end_ms": 10000,
+              "receiver_bytes": 175000000,
+              "receiver_bits_per_second": 280000000,
+              "sender_bits_per_second": null,
+              "retransmits": null,
+              "omitted": false
+            }
+          ],
+          "loaded_ping": {
+            "status": "completed",
+            "samples": [
+              {
+                "sequence": 1,
+                "elapsed_ms": 0,
+                "outcome": "reply",
+                "rtt_us": 40000,
+                "error_code": null
+              },
+              {
+                "sequence": 2,
+                "elapsed_ms": 500,
+                "outcome": "reply",
+                "rtt_us": 41000,
+                "error_code": null
+              },
+              {
+                "sequence": 3,
+                "elapsed_ms": 1000,
+                "outcome": "reply",
+                "rtt_us": 42000,
+                "error_code": null
+              },
+              {
+                "sequence": 4,
+                "elapsed_ms": 1500,
+                "outcome": "reply",
+                "rtt_us": 43000,
+                "error_code": null
+              },
+              {
+                "sequence": 5,
+                "elapsed_ms": 2000,
+                "outcome": "reply",
+                "rtt_us": 44000,
+                "error_code": null
+              },
+              {
+                "sequence": 6,
+                "elapsed_ms": 2500,
+                "outcome": "reply",
+                "rtt_us": 45000,
+                "error_code": null
+              },
+              {
+                "sequence": 7,
+                "elapsed_ms": 3000,
+                "outcome": "reply",
+                "rtt_us": 46000,
+                "error_code": null
+              },
+              {
+                "sequence": 8,
+                "elapsed_ms": 3500,
+                "outcome": "reply",
+                "rtt_us": 47000,
+                "error_code": null
+              },
+              {
+                "sequence": 9,
+                "elapsed_ms": 4000,
+                "outcome": "reply",
+                "rtt_us": 48000,
+                "error_code": null
+              },
+              {
+                "sequence": 10,
+                "elapsed_ms": 4500,
+                "outcome": "reply",
+                "rtt_us": 49000,
+                "error_code": null
+              },
+              {
+                "sequence": 11,
+                "elapsed_ms": 5000,
+                "outcome": "reply",
+                "rtt_us": 50000,
+                "error_code": null
+              },
+              {
+                "sequence": 12,
+                "elapsed_ms": 5500,
+                "outcome": "reply",
+                "rtt_us": 51000,
+                "error_code": null
+              },
+              {
+                "sequence": 13,
+                "elapsed_ms": 6000,
+                "outcome": "reply",
+                "rtt_us": 52000,
+                "error_code": null
+              },
+              {
+                "sequence": 14,
+                "elapsed_ms": 6500,
+                "outcome": "reply",
+                "rtt_us": 53000,
+                "error_code": null
+              },
+              {
+                "sequence": 15,
+                "elapsed_ms": 7000,
+                "outcome": "reply",
+                "rtt_us": 54000,
+                "error_code": null
+              },
+              {
+                "sequence": 16,
+                "elapsed_ms": 7500,
+                "outcome": "reply",
+                "rtt_us": 55000,
+                "error_code": null
+              },
+              {
+                "sequence": 17,
+                "elapsed_ms": 8000,
+                "outcome": "reply",
+                "rtt_us": 56000,
+                "error_code": null
+              },
+              {
+                "sequence": 18,
+                "elapsed_ms": 8500,
+                "outcome": "reply",
+                "rtt_us": 57000,
+                "error_code": null
+              },
+              {
+                "sequence": 19,
+                "elapsed_ms": 9000,
+                "outcome": "reply",
+                "rtt_us": 58000,
+                "error_code": null
+              },
+              {
+                "sequence": 20,
+                "elapsed_ms": 9500,
+                "outcome": "reply",
+                "rtt_us": 59000,
+                "error_code": null
+              }
+            ],
+            "summary": {
+              "probes_recorded": 20,
+              "probes_sent": 20,
+              "replies_received": 20,
+              "timed_out": 0,
+              "local_failures": 0,
+              "reply_loss_percent": 0,
+              "rtt_min_ms": 40,
+              "rtt_mean_ms": 49.5,
+              "rtt_median_ms": 49.5,
+              "rtt_p95_ms": 58,
+              "rtt_max_ms": 59,
+              "rtt_stddev_ms": 5.766,
+              "rtt_adjacent_mean_abs_diff_ms": 1
+            },
+            "error": null
+          },
+          "error": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "baseline-singapore-upload-1",
+      "phase_id": "baseline",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "completed",
+      "started_at": "2026-09-16T10:06:00Z",
+      "ended_at": "2026-09-16T10:06:10Z",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "upload",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": 1,
+      "attempts": [
+        {
+          "number": 1,
+          "session_id": "session-1",
+          "status": "completed",
+          "started_at": "2026-09-16T10:06:00Z",
+          "ended_at": "2026-09-16T10:06:10Z",
+          "sender": {
+            "bytes": 340100000,
+            "duration_ms": 10000,
+            "bits_per_second": 272080000,
+            "retransmits": 2
+          },
+          "receiver": {
+            "bytes": 340000000,
+            "duration_ms": 10000,
+            "bits_per_second": 272000000,
+            "retransmits": null
+          },
+          "intervals": [
+            {
+              "index": 0,
+              "start_ms": 0,
+              "end_ms": 5000,
+              "receiver_bytes": 170000000,
+              "receiver_bits_per_second": 272000000,
+              "sender_bits_per_second": null,
+              "retransmits": null,
+              "omitted": false
+            },
+            {
+              "index": 1,
+              "start_ms": 5000,
+              "end_ms": 10000,
+              "receiver_bytes": 170000000,
+              "receiver_bits_per_second": 272000000,
+              "sender_bits_per_second": null,
+              "retransmits": null,
+              "omitted": false
+            }
+          ],
+          "loaded_ping": {
+            "status": "completed",
+            "samples": [
+              {
+                "sequence": 1,
+                "elapsed_ms": 0,
+                "outcome": "reply",
+                "rtt_us": 42000,
+                "error_code": null
+              },
+              {
+                "sequence": 2,
+                "elapsed_ms": 500,
+                "outcome": "reply",
+                "rtt_us": 43000,
+                "error_code": null
+              },
+              {
+                "sequence": 3,
+                "elapsed_ms": 1000,
+                "outcome": "reply",
+                "rtt_us": 44000,
+                "error_code": null
+              },
+              {
+                "sequence": 4,
+                "elapsed_ms": 1500,
+                "outcome": "reply",
+                "rtt_us": 45000,
+                "error_code": null
+              },
+              {
+                "sequence": 5,
+                "elapsed_ms": 2000,
+                "outcome": "reply",
+                "rtt_us": 46000,
+                "error_code": null
+              },
+              {
+                "sequence": 6,
+                "elapsed_ms": 2500,
+                "outcome": "reply",
+                "rtt_us": 47000,
+                "error_code": null
+              },
+              {
+                "sequence": 7,
+                "elapsed_ms": 3000,
+                "outcome": "reply",
+                "rtt_us": 48000,
+                "error_code": null
+              },
+              {
+                "sequence": 8,
+                "elapsed_ms": 3500,
+                "outcome": "reply",
+                "rtt_us": 49000,
+                "error_code": null
+              },
+              {
+                "sequence": 9,
+                "elapsed_ms": 4000,
+                "outcome": "reply",
+                "rtt_us": 50000,
+                "error_code": null
+              },
+              {
+                "sequence": 10,
+                "elapsed_ms": 4500,
+                "outcome": "reply",
+                "rtt_us": 51000,
+                "error_code": null
+              },
+              {
+                "sequence": 11,
+                "elapsed_ms": 5000,
+                "outcome": "reply",
+                "rtt_us": 52000,
+                "error_code": null
+              },
+              {
+                "sequence": 12,
+                "elapsed_ms": 5500,
+                "outcome": "reply",
+                "rtt_us": 53000,
+                "error_code": null
+              },
+              {
+                "sequence": 13,
+                "elapsed_ms": 6000,
+                "outcome": "reply",
+                "rtt_us": 54000,
+                "error_code": null
+              },
+              {
+                "sequence": 14,
+                "elapsed_ms": 6500,
+                "outcome": "reply",
+                "rtt_us": 55000,
+                "error_code": null
+              },
+              {
+                "sequence": 15,
+                "elapsed_ms": 7000,
+                "outcome": "reply",
+                "rtt_us": 56000,
+                "error_code": null
+              },
+              {
+                "sequence": 16,
+                "elapsed_ms": 7500,
+                "outcome": "reply",
+                "rtt_us": 57000,
+                "error_code": null
+              },
+              {
+                "sequence": 17,
+                "elapsed_ms": 8000,
+                "outcome": "reply",
+                "rtt_us": 58000,
+                "error_code": null
+              },
+              {
+                "sequence": 18,
+                "elapsed_ms": 8500,
+                "outcome": "reply",
+                "rtt_us": 59000,
+                "error_code": null
+              },
+              {
+                "sequence": 19,
+                "elapsed_ms": 9000,
+                "outcome": "reply",
+                "rtt_us": 60000,
+                "error_code": null
+              },
+              {
+                "sequence": 20,
+                "elapsed_ms": 9500,
+                "outcome": "reply",
+                "rtt_us": 61000,
+                "error_code": null
+              }
+            ],
+            "summary": {
+              "probes_recorded": 20,
+              "probes_sent": 20,
+              "replies_received": 20,
+              "timed_out": 0,
+              "local_failures": 0,
+              "reply_loss_percent": 0,
+              "rtt_min_ms": 42,
+              "rtt_mean_ms": 51.5,
+              "rtt_median_ms": 51.5,
+              "rtt_p95_ms": 60,
+              "rtt_max_ms": 61,
+              "rtt_stddev_ms": 5.766,
+              "rtt_adjacent_mean_abs_diff_ms": 1
+            },
+            "error": null
+          },
+          "error": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "warp-singapore-idle",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "session_id": "session-1",
+      "kind": "idle_ping",
+      "status": "completed",
+      "started_at": "2026-09-16T10:32:00Z",
+      "ended_at": "2026-09-16T10:32:30Z",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "requested_probes": 30,
+        "interval_ms": 1000,
+        "timeout_ms": 2000,
+        "payload_bytes": 32
+      },
+      "samples": [
+        {
+          "sequence": 1,
+          "elapsed_ms": 0,
+          "outcome": "reply",
+          "rtt_us": 17000,
+          "error_code": null
+        },
+        {
+          "sequence": 2,
+          "elapsed_ms": 1000,
+          "outcome": "reply",
+          "rtt_us": 17250,
+          "error_code": null
+        },
+        {
+          "sequence": 3,
+          "elapsed_ms": 2000,
+          "outcome": "reply",
+          "rtt_us": 17500,
+          "error_code": null
+        },
+        {
+          "sequence": 4,
+          "elapsed_ms": 3000,
+          "outcome": "reply",
+          "rtt_us": 17750,
+          "error_code": null
+        },
+        {
+          "sequence": 5,
+          "elapsed_ms": 4000,
+          "outcome": "reply",
+          "rtt_us": 18000,
+          "error_code": null
+        },
+        {
+          "sequence": 6,
+          "elapsed_ms": 5000,
+          "outcome": "reply",
+          "rtt_us": 17000,
+          "error_code": null
+        },
+        {
+          "sequence": 7,
+          "elapsed_ms": 6000,
+          "outcome": "timeout",
+          "rtt_us": null,
+          "error_code": null
+        },
+        {
+          "sequence": 8,
+          "elapsed_ms": 7000,
+          "outcome": "reply",
+          "rtt_us": 17500,
+          "error_code": null
+        },
+        {
+          "sequence": 9,
+          "elapsed_ms": 8000,
+          "outcome": "reply",
+          "rtt_us": 17750,
+          "error_code": null
+        },
+        {
+          "sequence": 10,
+          "elapsed_ms": 9000,
+          "outcome": "reply",
+          "rtt_us": 18000,
+          "error_code": null
+        },
+        {
+          "sequence": 11,
+          "elapsed_ms": 10000,
+          "outcome": "reply",
+          "rtt_us": 17000,
+          "error_code": null
+        },
+        {
+          "sequence": 12,
+          "elapsed_ms": 11000,
+          "outcome": "reply",
+          "rtt_us": 17250,
+          "error_code": null
+        },
+        {
+          "sequence": 13,
+          "elapsed_ms": 12000,
+          "outcome": "reply",
+          "rtt_us": 17500,
+          "error_code": null
+        },
+        {
+          "sequence": 14,
+          "elapsed_ms": 13000,
+          "outcome": "reply",
+          "rtt_us": 17750,
+          "error_code": null
+        },
+        {
+          "sequence": 15,
+          "elapsed_ms": 14000,
+          "outcome": "reply",
+          "rtt_us": 18000,
+          "error_code": null
+        },
+        {
+          "sequence": 16,
+          "elapsed_ms": 15000,
+          "outcome": "reply",
+          "rtt_us": 17000,
+          "error_code": null
+        },
+        {
+          "sequence": 17,
+          "elapsed_ms": 16000,
+          "outcome": "reply",
+          "rtt_us": 17250,
+          "error_code": null
+        },
+        {
+          "sequence": 18,
+          "elapsed_ms": 17000,
+          "outcome": "reply",
+          "rtt_us": 17500,
+          "error_code": null
+        },
+        {
+          "sequence": 19,
+          "elapsed_ms": 18000,
+          "outcome": "reply",
+          "rtt_us": 17750,
+          "error_code": null
+        },
+        {
+          "sequence": 20,
+          "elapsed_ms": 19000,
+          "outcome": "reply",
+          "rtt_us": 18000,
+          "error_code": null
+        },
+        {
+          "sequence": 21,
+          "elapsed_ms": 20000,
+          "outcome": "reply",
+          "rtt_us": 17000,
+          "error_code": null
+        },
+        {
+          "sequence": 22,
+          "elapsed_ms": 21000,
+          "outcome": "reply",
+          "rtt_us": 17250,
+          "error_code": null
+        },
+        {
+          "sequence": 23,
+          "elapsed_ms": 22000,
+          "outcome": "reply",
+          "rtt_us": 17500,
+          "error_code": null
+        },
+        {
+          "sequence": 24,
+          "elapsed_ms": 23000,
+          "outcome": "reply",
+          "rtt_us": 17750,
+          "error_code": null
+        },
+        {
+          "sequence": 25,
+          "elapsed_ms": 24000,
+          "outcome": "reply",
+          "rtt_us": 18000,
+          "error_code": null
+        },
+        {
+          "sequence": 26,
+          "elapsed_ms": 25000,
+          "outcome": "reply",
+          "rtt_us": 17000,
+          "error_code": null
+        },
+        {
+          "sequence": 27,
+          "elapsed_ms": 26000,
+          "outcome": "reply",
+          "rtt_us": 17250,
+          "error_code": null
+        },
+        {
+          "sequence": 28,
+          "elapsed_ms": 27000,
+          "outcome": "reply",
+          "rtt_us": 17500,
+          "error_code": null
+        },
+        {
+          "sequence": 29,
+          "elapsed_ms": 28000,
+          "outcome": "reply",
+          "rtt_us": 17750,
+          "error_code": null
+        },
+        {
+          "sequence": 30,
+          "elapsed_ms": 29000,
+          "outcome": "reply",
+          "rtt_us": 18000,
+          "error_code": null
+        }
+      ],
+      "summary": {
+        "probes_recorded": 30,
+        "probes_sent": 30,
+        "replies_received": 29,
+        "timed_out": 1,
+        "local_failures": 0,
+        "reply_loss_percent": 3.333333,
+        "rtt_min_ms": 17,
+        "rtt_mean_ms": 17.509,
+        "rtt_median_ms": 17.5,
+        "rtt_p95_ms": 18,
+        "rtt_max_ms": 18,
+        "rtt_stddev_ms": 0.356,
+        "rtt_adjacent_mean_abs_diff_ms": 0.389
+      },
+      "error": null
+    },
+    {
+      "id": "warp-singapore-download-1",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "completed",
+      "started_at": "2026-09-16T10:34:00Z",
+      "ended_at": "2026-09-16T10:34:10Z",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "download",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": 1,
+      "attempts": [
+        {
+          "number": 1,
+          "session_id": "session-1",
+          "status": "completed",
+          "started_at": "2026-09-16T10:34:00Z",
+          "ended_at": "2026-09-16T10:34:10Z",
+          "sender": {
+            "bytes": 370100000,
+            "duration_ms": 10000,
+            "bits_per_second": 296080000,
+            "retransmits": null
+          },
+          "receiver": {
+            "bytes": 370000000,
+            "duration_ms": 10000,
+            "bits_per_second": 296000000,
+            "retransmits": null
+          },
+          "intervals": [
+            {
+              "index": 0,
+              "start_ms": 0,
+              "end_ms": 5000,
+              "receiver_bytes": 185000000,
+              "receiver_bits_per_second": 296000000,
+              "sender_bits_per_second": null,
+              "retransmits": null,
+              "omitted": false
+            },
+            {
+              "index": 1,
+              "start_ms": 5000,
+              "end_ms": 10000,
+              "receiver_bytes": 185000000,
+              "receiver_bits_per_second": 296000000,
+              "sender_bits_per_second": null,
+              "retransmits": null,
+              "omitted": false
+            }
+          ],
+          "loaded_ping": {
+            "status": "completed",
+            "samples": [
+              {
+                "sequence": 1,
+                "elapsed_ms": 0,
+                "outcome": "reply",
+                "rtt_us": 45000,
+                "error_code": null
+              },
+              {
+                "sequence": 2,
+                "elapsed_ms": 500,
+                "outcome": "reply",
+                "rtt_us": 46000,
+                "error_code": null
+              },
+              {
+                "sequence": 3,
+                "elapsed_ms": 1000,
+                "outcome": "reply",
+                "rtt_us": 47000,
+                "error_code": null
+              },
+              {
+                "sequence": 4,
+                "elapsed_ms": 1500,
+                "outcome": "reply",
+                "rtt_us": 48000,
+                "error_code": null
+              },
+              {
+                "sequence": 5,
+                "elapsed_ms": 2000,
+                "outcome": "reply",
+                "rtt_us": 49000,
+                "error_code": null
+              },
+              {
+                "sequence": 6,
+                "elapsed_ms": 2500,
+                "outcome": "reply",
+                "rtt_us": 50000,
+                "error_code": null
+              },
+              {
+                "sequence": 7,
+                "elapsed_ms": 3000,
+                "outcome": "reply",
+                "rtt_us": 51000,
+                "error_code": null
+              },
+              {
+                "sequence": 8,
+                "elapsed_ms": 3500,
+                "outcome": "reply",
+                "rtt_us": 52000,
+                "error_code": null
+              },
+              {
+                "sequence": 9,
+                "elapsed_ms": 4000,
+                "outcome": "reply",
+                "rtt_us": 53000,
+                "error_code": null
+              },
+              {
+                "sequence": 10,
+                "elapsed_ms": 4500,
+                "outcome": "reply",
+                "rtt_us": 54000,
+                "error_code": null
+              },
+              {
+                "sequence": 11,
+                "elapsed_ms": 5000,
+                "outcome": "reply",
+                "rtt_us": 55000,
+                "error_code": null
+              },
+              {
+                "sequence": 12,
+                "elapsed_ms": 5500,
+                "outcome": "reply",
+                "rtt_us": 56000,
+                "error_code": null
+              },
+              {
+                "sequence": 13,
+                "elapsed_ms": 6000,
+                "outcome": "reply",
+                "rtt_us": 57000,
+                "error_code": null
+              },
+              {
+                "sequence": 14,
+                "elapsed_ms": 6500,
+                "outcome": "reply",
+                "rtt_us": 58000,
+                "error_code": null
+              },
+              {
+                "sequence": 15,
+                "elapsed_ms": 7000,
+                "outcome": "reply",
+                "rtt_us": 59000,
+                "error_code": null
+              },
+              {
+                "sequence": 16,
+                "elapsed_ms": 7500,
+                "outcome": "reply",
+                "rtt_us": 60000,
+                "error_code": null
+              },
+              {
+                "sequence": 17,
+                "elapsed_ms": 8000,
+                "outcome": "reply",
+                "rtt_us": 61000,
+                "error_code": null
+              },
+              {
+                "sequence": 18,
+                "elapsed_ms": 8500,
+                "outcome": "reply",
+                "rtt_us": 62000,
+                "error_code": null
+              },
+              {
+                "sequence": 19,
+                "elapsed_ms": 9000,
+                "outcome": "reply",
+                "rtt_us": 63000,
+                "error_code": null
+              },
+              {
+                "sequence": 20,
+                "elapsed_ms": 9500,
+                "outcome": "reply",
+                "rtt_us": 64000,
+                "error_code": null
+              }
+            ],
+            "summary": {
+              "probes_recorded": 20,
+              "probes_sent": 20,
+              "replies_received": 20,
+              "timed_out": 0,
+              "local_failures": 0,
+              "reply_loss_percent": 0,
+              "rtt_min_ms": 45,
+              "rtt_mean_ms": 54.5,
+              "rtt_median_ms": 54.5,
+              "rtt_p95_ms": 63,
+              "rtt_max_ms": 64,
+              "rtt_stddev_ms": 5.766,
+              "rtt_adjacent_mean_abs_diff_ms": 1
+            },
+            "error": null
+          },
+          "error": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "warp-singapore-upload-1",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "kind": "tcp_transfer",
+      "status": "failed",
+      "started_at": "2026-09-16T10:36:00Z",
+      "ended_at": "2026-09-16T10:36:18Z",
+      "endpoint": {
+        "ipv4": "192.0.2.10",
+        "iperf_port": 5201
+      },
+      "settings": {
+        "protocol": "tcp",
+        "direction": "upload",
+        "repetition": 1,
+        "duration_seconds": 10,
+        "streams": 1
+      },
+      "selected_attempt": null,
+      "attempts": [
+        {
+          "number": 1,
+          "session_id": "session-1",
+          "status": "failed",
+          "started_at": "2026-09-16T10:36:00Z",
+          "ended_at": "2026-09-16T10:36:01Z",
+          "sender": null,
+          "receiver": null,
+          "intervals": [],
+          "loaded_ping": null,
+          "error": {
+            "code": "IPERF_SERVER_BUSY",
+            "category": "remote_server",
+            "retryable": true,
+            "message": "The public server rejected the transfer because it was busy."
+          }
+        },
+        {
+          "number": 2,
+          "session_id": "session-1",
+          "status": "failed",
+          "started_at": "2026-09-16T10:36:06Z",
+          "ended_at": "2026-09-16T10:36:07Z",
+          "sender": null,
+          "receiver": null,
+          "intervals": [],
+          "loaded_ping": null,
+          "error": {
+            "code": "IPERF_SERVER_BUSY",
+            "category": "remote_server",
+            "retryable": true,
+            "message": "The public server rejected the transfer because it was busy."
+          }
+        },
+        {
+          "number": 3,
+          "session_id": "session-1",
+          "status": "failed",
+          "started_at": "2026-09-16T10:36:17Z",
+          "ended_at": "2026-09-16T10:36:18Z",
+          "sender": null,
+          "receiver": null,
+          "intervals": [],
+          "loaded_ping": null,
+          "error": {
+            "code": "IPERF_SERVER_BUSY",
+            "category": "remote_server",
+            "retryable": true,
+            "message": "The public server rejected the transfer because it was busy."
+          }
+        }
+      ],
+      "error": {
+        "code": "IPERF_SERVER_BUSY",
+        "category": "remote_server",
+        "retryable": true,
+        "message": "The public server remained busy after bounded retries."
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "timestamp": "2026-09-16T10:36:18Z",
+      "severity": "warning",
+      "code": "IPERF_SERVER_BUSY",
+      "message": "Upload result is unavailable after bounded retries.",
+      "phase_id": "warp",
+      "target_id": "singapore",
+      "measurement_id": "warp-singapore-upload-1"
+    }
+  ]
+}

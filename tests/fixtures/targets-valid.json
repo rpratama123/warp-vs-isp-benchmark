@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_version": "1.0.0",
+  "published_at": "2026-09-16T00:00:00Z",
+  "targets": [
+    {
+      "id": "sg-singapore-example",
+      "order": 1,
+      "enabled": true,
+      "label": "Singapore",
+      "country_code": "SG",
+      "city": "Singapore",
+      "location_confidence": "directory_listed",
+      "sources": [
+        {
+          "url": "https://example.test/public-servers",
+          "checked_at": "2026-09-16T00:00:00Z",
+          "usage_policy": "public_directory_listed"
+        }
+      ],
+      "endpoints": [
+        {
+          "id": "sg-primary",
+          "priority": 1,
+          "hostname": "iperf.example.test",
+          "ports": [5201, 5202],
+          "supports_reverse": "yes",
+          "supports_icmp": "unknown",
+          "verification_status": "unverified",
+          "verified_at": null
+        }
+      ]
+    }
+  ]
+}

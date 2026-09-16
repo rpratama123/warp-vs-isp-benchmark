@@ -1,0 +1,14 @@
+{
+  "name": "warp-vs-isp-benchmark",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Contracts and validation for the WARP versus ISP benchmark",
+  "type": "module",
+  "scripts": {
+    "fixtures": "node tests/generate-fixtures.mjs",
+    "test": "node tests/generate-fixtures.mjs --check && node tests/validate-contracts.mjs"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0"
+  }
+}

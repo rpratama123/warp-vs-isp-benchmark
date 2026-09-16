@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:warp-vs-isp-benchmark:schema:binaries-v1",
+  "title": "WARP vs ISP Benchmark Binary Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "manifest_version", "published_at", "artifacts"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "manifest_version": { "$ref": "#/$defs/version" },
+    "published_at": { "$ref": "#/$defs/timestamp" },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifact" }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?Z$"
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "tool",
+        "version",
+        "os",
+        "architecture",
+        "url",
+        "sha256",
+        "archive_format",
+        "executable_path",
+        "required_files",
+        "upstream_source",
+        "build_provenance",
+        "license",
+        "redistribution_status"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "tool": { "enum": ["iperf3", "jq"] },
+        "version": { "$ref": "#/$defs/version" },
+        "os": { "enum": ["windows", "linux", "macos"] },
+        "architecture": { "enum": ["x86_64", "aarch64"] },
+        "url": { "type": "string", "pattern": "^https://", "maxLength": 500 },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "archive_format": { "enum": ["zip", "tar.gz", "tar.xz", "raw"] },
+        "executable_path": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "required_files": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+        },
+        "upstream_source": { "type": "string", "pattern": "^https://", "maxLength": 500 },
+        "build_provenance": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "license": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "redistribution_status": { "enum": ["approved", "review_required", "prohibited"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_version": "1.0.0",
+  "published_at": "2026-09-16T00:00:00Z",
+  "artifacts": [
+    {
+      "id": "iperf3-windows-x86_64-example",
+      "tool": "iperf3",
+      "version": "3.19.1",
+      "os": "windows",
+      "architecture": "x86_64",
+      "url": "https://example.test/iperf3.zip",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "archive_format": "zip",
+      "executable_path": "iperf3/iperf3.exe",
+      "required_files": ["iperf3/iperf3.exe", "iperf3/cygwin1.dll"],
+      "upstream_source": "https://example.test/source",
+      "build_provenance": "Fixture only; not a distributable artifact.",
+      "license": "BSD-3-Clause",
+      "redistribution_status": "review_required"
+    }
+  ]
+}
