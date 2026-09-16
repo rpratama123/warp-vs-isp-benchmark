@@ -15,8 +15,12 @@
       "executable_path": "iperf3/iperf3.exe",
       "required_files": ["iperf3/iperf3.exe", "iperf3/cygwin1.dll"],
       "upstream_source": "https://example.test/source",
+      "provenance_urls": ["https://example.test/provenance"],
       "build_provenance": "Fixture only; not a distributable artifact.",
       "license": "BSD-3-Clause",
+      "license_notice_urls": ["https://example.test/LICENSE"],
+      "distribution_mode": "upstream_download",
+      "use_status": "candidate",
       "redistribution_status": "review_required"
     }
   ]

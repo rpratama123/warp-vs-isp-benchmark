@@ -44,8 +44,12 @@
         "executable_path",
         "required_files",
         "upstream_source",
+        "provenance_urls",
         "build_provenance",
         "license",
+        "license_notice_urls",
+        "distribution_mode",
+        "use_status",
         "redistribution_status"
       ],
       "properties": {
@@ -64,8 +68,22 @@
           "items": { "type": "string", "minLength": 1, "maxLength": 300 }
         },
         "upstream_source": { "type": "string", "pattern": "^https://", "maxLength": 500 },
+        "provenance_urls": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^https://", "maxLength": 500 }
+        },
         "build_provenance": { "type": "string", "minLength": 1, "maxLength": 500 },
         "license": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "license_notice_urls": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^https://", "maxLength": 500 }
+        },
+        "distribution_mode": { "enum": ["upstream_download", "project_release"] },
+        "use_status": { "enum": ["approved", "candidate", "blocked"] },
         "redistribution_status": { "enum": ["approved", "review_required", "prohibited"] }
       }
     }

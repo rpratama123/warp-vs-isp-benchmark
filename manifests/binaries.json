@@ -1,0 +1,205 @@
+{
+  "schema_version": "1.0.0",
+  "manifest_version": "1.0.0",
+  "published_at": "2026-09-16T18:00:00Z",
+  "artifacts": [
+    {
+      "id": "jq-1.8.2-windows-x86_64",
+      "tool": "jq",
+      "version": "1.8.2",
+      "os": "windows",
+      "architecture": "x86_64",
+      "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-windows-amd64.exe",
+      "sha256": "a6fc67fedaf9128a3309a1e2ebb8b986aeccf70122ee46d2cb4849e423f0c627",
+      "archive_format": "raw",
+      "executable_path": "jq.exe",
+      "required_files": ["jq.exe"],
+      "upstream_source": "https://github.com/jqlang/jq/tree/jq-1.8.2",
+      "provenance_urls": [
+        "https://github.com/jqlang/jq/releases/tag/jq-1.8.2",
+        "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-attestation.json"
+      ],
+      "build_provenance": "Official jq release built by its tagged GitHub Actions workflow with checksums, GPG signatures, and attestation.",
+      "license": "MIT AND BSD-2-Clause AND ICU",
+      "license_notice_urls": ["https://github.com/jqlang/jq/blob/jq-1.8.2/COPYING"],
+      "distribution_mode": "upstream_download",
+      "use_status": "approved",
+      "redistribution_status": "approved"
+    },
+    {
+      "id": "jq-1.8.2-linux-x86_64",
+      "tool": "jq",
+      "version": "1.8.2",
+      "os": "linux",
+      "architecture": "x86_64",
+      "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-linux-amd64",
+      "sha256": "b1c22172dd303f3be49e935aa56aa48a8b7a46e0bc838b4997d3bb451495870f",
+      "archive_format": "raw",
+      "executable_path": "jq",
+      "required_files": ["jq"],
+      "upstream_source": "https://github.com/jqlang/jq/tree/jq-1.8.2",
+      "provenance_urls": [
+        "https://github.com/jqlang/jq/releases/tag/jq-1.8.2",
+        "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-attestation.json"
+      ],
+      "build_provenance": "Official jq release; static Linux executable built and tested by the tagged GitHub Actions workflow.",
+      "license": "MIT AND BSD-2-Clause AND ICU",
+      "license_notice_urls": ["https://github.com/jqlang/jq/blob/jq-1.8.2/COPYING"],
+      "distribution_mode": "upstream_download",
+      "use_status": "approved",
+      "redistribution_status": "approved"
+    },
+    {
+      "id": "jq-1.8.2-macos-x86_64",
+      "tool": "jq",
+      "version": "1.8.2",
+      "os": "macos",
+      "architecture": "x86_64",
+      "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-macos-amd64",
+      "sha256": "e94b266e3c26690550006abe63152b782280f4e14374accdf04cbde844f00bc0",
+      "archive_format": "raw",
+      "executable_path": "jq",
+      "required_files": ["jq"],
+      "upstream_source": "https://github.com/jqlang/jq/tree/jq-1.8.2",
+      "provenance_urls": [
+        "https://github.com/jqlang/jq/releases/tag/jq-1.8.2",
+        "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-attestation.json"
+      ],
+      "build_provenance": "Official jq release built on macos-14; requires macOS 14 or newer and links only to Apple system libraries.",
+      "license": "MIT AND BSD-2-Clause AND ICU",
+      "license_notice_urls": ["https://github.com/jqlang/jq/blob/jq-1.8.2/COPYING"],
+      "distribution_mode": "upstream_download",
+      "use_status": "approved",
+      "redistribution_status": "approved"
+    },
+    {
+      "id": "jq-1.8.2-macos-aarch64",
+      "tool": "jq",
+      "version": "1.8.2",
+      "os": "macos",
+      "architecture": "aarch64",
+      "url": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-macos-arm64",
+      "sha256": "2d75340ba57a4b4b4c8708a21c2dc8e958a48aaa8bba13b27f77f6e4c0eca07e",
+      "archive_format": "raw",
+      "executable_path": "jq",
+      "required_files": ["jq"],
+      "upstream_source": "https://github.com/jqlang/jq/tree/jq-1.8.2",
+      "provenance_urls": [
+        "https://github.com/jqlang/jq/releases/tag/jq-1.8.2",
+        "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-attestation.json"
+      ],
+      "build_provenance": "Official jq release built on macos-14; requires macOS 14 or newer and links only to Apple system libraries.",
+      "license": "MIT AND BSD-2-Clause AND ICU",
+      "license_notice_urls": ["https://github.com/jqlang/jq/blob/jq-1.8.2/COPYING"],
+      "distribution_mode": "upstream_download",
+      "use_status": "approved",
+      "redistribution_status": "approved"
+    },
+    {
+      "id": "iperf3-3.21-windows-x86_64-userdocs",
+      "tool": "iperf3",
+      "version": "3.21.0",
+      "os": "windows",
+      "architecture": "x86_64",
+      "url": "https://github.com/userdocs/iperf3-static/releases/download/3.21/iperf3-amd64-win.zip",
+      "sha256": "913d9aac883f53c2f8c63ab3adcd7c8b00ceceae768e8d03a5a93c75d09c42b4",
+      "archive_format": "zip",
+      "executable_path": "iperf3.exe",
+      "required_files": ["iperf3.exe", "cygwin1.dll"],
+      "upstream_source": "https://github.com/esnet/iperf/tree/3.21",
+      "provenance_urls": [
+        "https://github.com/userdocs/iperf3-static/attestations/45552215",
+        "https://github.com/userdocs/iperf3-static/actions/runs/34026123896",
+        "https://github.com/userdocs/iperf3-static/blob/5a2402906c66da3def52b2fe95b3680a624d39e3/.github/workflows/ci-windows.yml"
+      ],
+      "build_provenance": "Attested community Cygwin build from public workflow commit 5a240290; exact ESnet source ref and rolling Cygwin inputs were not captured.",
+      "license": "BSD-3-Clause AND MIT AND LGPL-3.0-or-later WITH Cygwin-exception",
+      "license_notice_urls": [
+        "https://github.com/esnet/iperf/blob/3.21/LICENSE",
+        "https://cygwin.com/licensing.html",
+        "https://github.com/userdocs/iperf3-static/blob/5a2402906c66da3def52b2fe95b3680a624d39e3/LICENSE.txt"
+      ],
+      "distribution_mode": "upstream_download",
+      "use_status": "approved",
+      "redistribution_status": "review_required"
+    },
+    {
+      "id": "iperf3-3.21-linux-x86_64-userdocs",
+      "tool": "iperf3",
+      "version": "3.21.0",
+      "os": "linux",
+      "architecture": "x86_64",
+      "url": "https://github.com/userdocs/iperf3-static/releases/download/3.21/iperf3-amd64",
+      "sha256": "201cbaed73d4e4da72c44c9aee895a2d58c75f1d1a4d721137f4888f6b7f5016",
+      "archive_format": "raw",
+      "executable_path": "iperf3",
+      "required_files": ["iperf3"],
+      "upstream_source": "https://github.com/esnet/iperf/tree/3.21",
+      "provenance_urls": [
+        "https://github.com/userdocs/iperf3-static/releases/tag/3.21",
+        "https://github.com/userdocs/iperf3-static/attestations"
+      ],
+      "build_provenance": "Community static musl build with GitHub attestation, but mutable release assets and moving toolchain/OpenSSL inputs.",
+      "license": "BSD-3-Clause AND Apache-2.0 AND MIT",
+      "license_notice_urls": [
+        "https://github.com/esnet/iperf/blob/3.21/LICENSE",
+        "https://github.com/userdocs/iperf3-static/blob/master/LICENSE.txt"
+      ],
+      "distribution_mode": "upstream_download",
+      "use_status": "candidate",
+      "redistribution_status": "review_required"
+    },
+    {
+      "id": "iperf3-3.21-macos-x86_64-userdocs",
+      "tool": "iperf3",
+      "version": "3.21.0",
+      "os": "macos",
+      "architecture": "x86_64",
+      "url": "https://github.com/userdocs/iperf3-static/releases/download/3.21/iperf3-amd64-osx-15",
+      "sha256": "9168916504291356a0779b401052db14c7f4fd93fa657154ea8e60e80cbaf279",
+      "archive_format": "raw",
+      "executable_path": "iperf3",
+      "required_files": ["iperf3"],
+      "upstream_source": "https://github.com/esnet/iperf/tree/3.21",
+      "provenance_urls": [
+        "https://github.com/userdocs/iperf3-static/releases/tag/3.21",
+        "https://github.com/userdocs/iperf3-static/attestations"
+      ],
+      "build_provenance": "Community build requiring macOS 15; mutable release assets and unpinned Homebrew/OpenSSL inputs.",
+      "license": "BSD-3-Clause AND Apache-2.0",
+      "license_notice_urls": [
+        "https://github.com/esnet/iperf/blob/3.21/LICENSE",
+        "https://github.com/userdocs/iperf3-static/blob/master/LICENSE.txt"
+      ],
+      "distribution_mode": "upstream_download",
+      "use_status": "candidate",
+      "redistribution_status": "review_required"
+    },
+    {
+      "id": "iperf3-3.21-macos-aarch64-userdocs",
+      "tool": "iperf3",
+      "version": "3.21.0",
+      "os": "macos",
+      "architecture": "aarch64",
+      "url": "https://github.com/userdocs/iperf3-static/releases/download/3.21/iperf3-arm64-osx-14",
+      "sha256": "c7c8945847f5228c428b7d1975243c185e4710fbdeb66ce69e87169d76e14d38",
+      "archive_format": "raw",
+      "executable_path": "iperf3",
+      "required_files": ["iperf3"],
+      "upstream_source": "https://github.com/esnet/iperf/tree/3.21",
+      "provenance_urls": [
+        "https://github.com/userdocs/iperf3-static/releases/tag/3.21",
+        "https://github.com/userdocs/iperf3-static/attestations"
+      ],
+      "build_provenance": "Community build requiring macOS 14; mutable release assets and unpinned Homebrew/OpenSSL inputs.",
+      "license": "BSD-3-Clause AND Apache-2.0",
+      "license_notice_urls": [
+        "https://github.com/esnet/iperf/blob/3.21/LICENSE",
+        "https://github.com/userdocs/iperf3-static/blob/master/LICENSE.txt"
+      ],
+      "distribution_mode": "upstream_download",
+      "use_status": "candidate",
+      "redistribution_status": "review_required"
+    }
+  ]
+}

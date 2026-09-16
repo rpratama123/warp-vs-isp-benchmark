@@ -8,6 +8,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const loadJson = async (path) => JSON.parse(await readFile(resolve(root, path), "utf8"));
 
 const ajv = new Ajv2020({ allErrors: true, strict: true });
+const schemaValidators = new Map();
 const contracts = [
   ["schema/results-v1.schema.json", /^results-.*\.json$/],
   ["schema/targets-v1.schema.json", /^targets-.*\.json$/],
@@ -18,6 +19,7 @@ let failures = 0;
 
 for (const [schemaPath, fixturePattern] of contracts) {
   const validate = ajv.compile(await loadJson(schemaPath));
+  schemaValidators.set(schemaPath, validate);
   const fixtures = (await readdir(resolve(root, "tests/fixtures"))).filter((name) => fixturePattern.test(name)).sort();
   for (const fixture of fixtures) {
     const data = await loadJson(`tests/fixtures/${fixture}`);
@@ -28,6 +30,21 @@ for (const [schemaPath, fixturePattern] of contracts) {
     } else {
       console.log(`Schema valid: ${fixture}`);
     }
+  }
+}
+
+for (const [schemaPath, manifestPath] of [
+  ["schema/targets-v1.schema.json", "manifests/targets.json"],
+  ["schema/binaries-v1.schema.json", "manifests/binaries.json"]
+]) {
+  const validate = schemaValidators.get(schemaPath);
+  const data = await loadJson(manifestPath);
+  if (!validate(data)) {
+    failures += 1;
+    console.error(`Schema validation failed: ${manifestPath}`);
+    console.error(ajv.errorsText(validate.errors, { separator: "\n" }));
+  } else {
+    console.log(`Schema valid: ${manifestPath}`);
   }
 }
 
@@ -423,19 +440,37 @@ for (const fixture of resultFixtures) {
   if (errors.length === 0) console.log(`Semantic valid: ${fixture}`);
 }
 
-const targetManifest = await loadJson("tests/fixtures/targets-valid.json");
-if (invalidTimestampPath(targetManifest) !== null) failures += 1;
-if (!unique(targetManifest.targets.map((target) => target.id))) failures += 1;
-if (!unique(targetManifest.targets.map((target) => target.order))) failures += 1;
-if (!isDeepEqual(targetManifest.targets.map((target) => target.order), [...targetManifest.targets.map((target) => target.order)].sort((a, b) => a - b))) failures += 1;
-for (const target of targetManifest.targets) {
-  if (!unique(target.endpoints.map((endpoint) => endpoint.id))) failures += 1;
-  if (!unique(target.endpoints.map((endpoint) => endpoint.priority))) failures += 1;
+for (const manifestPath of ["tests/fixtures/targets-valid.json", "manifests/targets.json"]) {
+  const targetManifest = await loadJson(manifestPath);
+  if (invalidTimestampPath(targetManifest) !== null) failures += 1;
+  if (!unique(targetManifest.targets.map((target) => target.id))) failures += 1;
+  if (!unique(targetManifest.targets.map((target) => target.order))) failures += 1;
+  if (!isDeepEqual(targetManifest.targets.map((target) => target.order), [...targetManifest.targets.map((target) => target.order)].sort((a, b) => a - b))) failures += 1;
+  for (const target of targetManifest.targets) {
+    if (!unique(target.endpoints.map((endpoint) => endpoint.id))) failures += 1;
+    if (!unique(target.endpoints.map((endpoint) => endpoint.priority))) failures += 1;
+    if (!target.endpoints.every((endpoint) => isDeepEqual(endpoint.ports, [...endpoint.ports].sort((a, b) => a - b)))) failures += 1;
+    if (target.enabled && !target.endpoints.some((endpoint) => endpoint.verification_status !== "unavailable")) failures += 1;
+    if (manifestPath === "manifests/targets.json" && target.enabled && target.endpoints.length < 2) failures += 1;
+    if (manifestPath === "manifests/targets.json" && target.enabled && !target.endpoints.some((endpoint) => endpoint.priority === 1 && endpoint.verification_status !== "unavailable")) failures += 1;
+  }
 }
 
-const binaryManifest = await loadJson("tests/fixtures/binaries-valid.json");
-if (invalidTimestampPath(binaryManifest) !== null) failures += 1;
-if (!unique(binaryManifest.artifacts.map((artifact) => artifact.id))) failures += 1;
+for (const manifestPath of ["tests/fixtures/binaries-valid.json", "manifests/binaries.json"]) {
+  const binaryManifest = await loadJson(manifestPath);
+  if (invalidTimestampPath(binaryManifest) !== null) failures += 1;
+  if (!unique(binaryManifest.artifacts.map((artifact) => artifact.id))) failures += 1;
+  if (binaryManifest.artifacts.some((artifact) => artifact.url.includes("/latest/"))) failures += 1;
+  if (binaryManifest.artifacts.some((artifact) => artifact.use_status === "approved" && artifact.distribution_mode === "project_release" && artifact.redistribution_status !== "approved")) failures += 1;
+  if (binaryManifest.artifacts.some((artifact) => artifact.use_status === "approved" && artifact.provenance_urls.length === 0)) failures += 1;
+  if (binaryManifest.artifacts.some((artifact) => artifact.redistribution_status === "review_required" && artifact.distribution_mode !== "upstream_download")) failures += 1;
+  const approvedPlatforms = binaryManifest.artifacts.filter((artifact) => artifact.use_status === "approved").map((artifact) => `${artifact.tool}|${artifact.os}|${artifact.architecture}`);
+  if (!unique(approvedPlatforms)) failures += 1;
+  if (manifestPath === "manifests/binaries.json") {
+    const windowsIperf = binaryManifest.artifacts.filter((artifact) => artifact.tool === "iperf3" && artifact.os === "windows" && artifact.architecture === "x86_64" && artifact.use_status === "approved");
+    if (windowsIperf.length !== 1 || windowsIperf[0].distribution_mode !== "upstream_download" || windowsIperf[0].provenance_urls.length < 2) failures += 1;
+  }
+}
 
 const completeFixture = await loadJson("tests/fixtures/results-complete.json");
 const negativeCases = [
