@@ -27,7 +27,11 @@ assert_equal "$(wb_seconds_to_ms 3000000)" 3000000000 'monotonic milliseconds ex
 
 host_os=$(uname -s)
 host_arch=$(uname -m)
-if [[ $host_os == Darwin ]]; then host_version=$(sw_vers -productVersion); else host_version=$(uname -r); fi
+case "$host_os/$host_arch" in
+  Linux/x86_64) host_version=$(uname -r) ;;
+  Darwin/x86_64|Darwin/arm64|Darwin/aarch64) host_version=$(sw_vers -productVersion) ;;
+  *) host_os=Linux; host_arch=x86_64; host_version=test ;;
+esac
 WARP_BENCH_OS=Darwin WARP_BENCH_ARCH=arm64 WARP_BENCH_OS_VERSION=14.0 wb_platform
 assert_equal "$WARP_BENCH_OS_FAMILY/$WARP_BENCH_ARCHITECTURE" macos/aarch64 'Darwin arm64 platform metadata normalizes'
 wb_select_jq_artifact
@@ -201,7 +205,7 @@ wb_state_apply "$parser_result" '.configuration.timing.server_busy_retries=0'
 parser_stderr=$temporary/parser-stderr
 wb_run_transfer "$parser_result" baseline-test-target-upload-1 "$malformed_iperf" 2> "$parser_stderr"
 assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-upload-1")|.status' "$parser_result")" failed 'malformed iperf output fails the transfer cleanly'
-assert_equal "$(wc -c < "$parser_stderr")" 0 'expected parser rejection does not leak jq diagnostics'
+ASSERT_NAME='expected parser rejection does not leak jq diagnostics' assert_true test ! -s "$parser_stderr"
 
 wb_state_apply "$result" '(.measurements[]|select(.id=="baseline-test-target-idle")) |= (.status="running"|.started_at=$checkpoint_now)'
 wb_finalize_state "$result" interrupted
