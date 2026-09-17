@@ -25,6 +25,36 @@ pipe_probe=$(env -u WARP_BENCH_SOURCE_ONLY WARP_BENCH_ENTRY_PROBE=1 bash < "$roo
 assert_equal "$pipe_probe" pipe-entry-reached 'pipe-to-shell reaches the interactive entry point'
 assert_equal "$(wb_seconds_to_ms 3000000)" 3000000000 'monotonic milliseconds exceed 32-bit uptime'
 
+cadence_dir=$temporary/cadence
+mkdir -p "$cadence_dir/bin"
+printf '0\n' > "$cadence_dir/clock"
+printf '0\n' > "$cadence_dir/count"
+cat > "$cadence_dir/bin/ping" <<'EOF'
+#!/usr/bin/env bash
+count=$(<"$WARP_BENCH_FAKE_COUNT"); count=$((count + 1)); printf '%s\n' "$count" > "$WARP_BENCH_FAKE_COUNT"
+now=$(<"$WARP_BENCH_FAKE_CLOCK")
+if (( count == 1 )); then
+  printf '%s\n' "$((now + 1000))" > "$WARP_BENCH_FAKE_CLOCK"
+  printf '100%% packet loss\n'
+  exit 1
+fi
+printf '%s\n' "$((now + 20))" > "$WARP_BENCH_FAKE_CLOCK"
+printf '64 bytes: time=1.0 ms\n'
+EOF
+chmod 700 "$cadence_dir/bin/ping"
+cadence_samples=$(
+  export PATH="$cadence_dir/bin:$PATH" WARP_BENCH_FAKE_CLOCK="$cadence_dir/clock" WARP_BENCH_FAKE_COUNT="$cadence_dir/count"
+  wb_uptime_ms() { local now; read -r now < "$WARP_BENCH_FAKE_CLOCK"; printf '%s' "$now"; }
+  sleep() {
+    local now increment
+    now=$(<"$WARP_BENCH_FAKE_CLOCK")
+    increment=$(awk -v value="$1" 'BEGIN { printf "%.0f", value * 1000 }')
+    printf '%s\n' "$((now + increment))" > "$WARP_BENCH_FAKE_CLOCK"
+  }
+  wb_ping_adapter 192.0.2.1 3 500 1000 32 | jq -sc '[.[].elapsed_ms]|join(",")'
+)
+assert_equal "$cadence_samples" '"0,1000,1500"' 'timeout recovery does not burst catch-up probes'
+
 summary=$(jq -c '.ping_samples' "$fixture" | wb_ping_summary)
 assert_equal "$(jq -c . <<<"$summary")" "$(jq -c '.ping_summary' "$fixture")" 'Bash ping normalization parity'
 
@@ -79,6 +109,12 @@ assert_equal "$(jq '[.measurements[]|select(.kind=="tcp_transfer")]|length' <<<"
 assert_equal "$(jq -r '.environment.runner.implementation' <<<"$state")" bash 'Linux Bash environment snapshot'
 assert_equal "$(jq -r '.configuration.idle_ping.requested_probes' <<<"$state")" 30 'exact quick profile snapshot'
 
+finalization_result=$temporary/finalization-result.json
+cp "$root/tests/fixtures/results-complete.json" "$finalization_result"
+wb_finalize_state "$finalization_result" auto
+assert_equal "$(jq -r '.run.status' "$finalization_result")" completed 'completed plans finalize without jq scope errors'
+assert_equal "$(jq -r '.run.comparison_valid' "$finalization_result")" true 'compatible verified phases finalize as comparable'
+
 result=$temporary/linux-result.json
 wb_checkpoint "$result" "$state"
 fake_iperf=$temporary/fake-iperf3
@@ -99,6 +135,21 @@ wb_run_transfer "$result" baseline-test-target-download-1 "$fake_iperf"
 assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-download-1")|.status' "$result")" completed 'background JSON-stream transfer completes'
 assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-download-1")|.selected_attempt' "$result")" 1 'completed transfer selects successful attempt'
 assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-download-1")|.attempts[0].loaded_ping.status' "$result")" completed 'loaded ping is attached to transfer attempt'
+
+malformed_iperf=$temporary/malformed-iperf3
+cat > "$malformed_iperf" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' '{"event":"start","data":{"test_start":{"duration":1}}}'
+sleep 0.15
+printf '%s\n' '{"event":"end","data":{}}'
+EOF
+chmod 700 "$malformed_iperf"
+wb_state_apply "$result" '.configuration.timing.server_busy_retries=0'
+parser_stderr=$temporary/parser-stderr
+wb_run_transfer "$result" baseline-test-target-upload-1 "$malformed_iperf" 2> "$parser_stderr"
+assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-upload-1")|.status' "$result")" failed 'malformed iperf output fails the transfer cleanly'
+assert_equal "$(wc -c < "$parser_stderr")" 0 'expected parser rejection does not leak jq diagnostics'
+
 wb_state_apply "$result" '(.measurements[]|select(.id=="baseline-test-target-idle")) |= (.status="running"|.started_at=$checkpoint_now)'
 wb_finalize_state "$result" interrupted
 assert_equal "$(jq -r '.run.status' "$result")" interrupted 'run finalizes as interrupted'

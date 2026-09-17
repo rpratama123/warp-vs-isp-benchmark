@@ -291,6 +291,7 @@ function semanticErrors(result) {
       validatePingResult(measurement, measurement.id, check);
       if (measurement.status === "completed") {
         check(measurement.samples.length === measurement.settings.requested_probes, `${measurement.id} completed with an incomplete probe set`);
+        validatePingCadence(measurement.samples, measurement.settings.interval_ms, measurement.id, check);
       }
       if (measurement.status === "pending") {
         check(measurement.samples.length === 0 && measurement.summary === null, `${measurement.id} pending ping contains samples or summary`);
@@ -365,9 +366,7 @@ function semanticErrors(result) {
               check(loadedSamples[0].elapsed_ms < result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded ping starts too late`);
               check(loadedSamples.at(-1).elapsed_ms >= attempt.receiver.duration_ms - result.configuration.loaded_ping.timeout_ms - result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded ping ends too early`);
               check(loadedSamples.at(-1).elapsed_ms < attempt.receiver.duration_ms, `${measurement.id} loaded ping extends beyond transfer duration`);
-              for (let index = 1; index < loadedSamples.length; index += 1) {
-                check(loadedSamples[index].elapsed_ms - loadedSamples[index - 1].elapsed_ms >= result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded probes overlap or exceed cadence`);
-              }
+              validatePingCadence(loadedSamples, result.configuration.loaded_ping.interval_ms, `${measurement.id} loaded`, check);
             }
           }
         }
@@ -427,6 +426,13 @@ function validatePingResult(ping, label, check) {
   }
   if (ping.status === "completed") check(ping.summary !== null && ping.error === null, `${label} completed state requires a summary and no error`);
   if (ping.status === "unavailable" || ping.status === "failed" || ping.status === "interrupted") check(ping.error !== null, `${label} unsuccessful state requires an error`);
+}
+
+function validatePingCadence(samples, intervalMs, label, check) {
+  const timestampToleranceMs = 20;
+  for (let index = 1; index < samples.length; index += 1) {
+    check(samples[index].elapsed_ms - samples[index - 1].elapsed_ms >= intervalMs - timestampToleranceMs, `${label} probes overlap or exceed cadence`);
+  }
 }
 
 const resultFixtures = (await readdir(resolve(root, "tests/fixtures"))).filter((name) => /^results-.*\.json$/.test(name)).sort();
@@ -500,6 +506,7 @@ const negativeCases = [
   ["malformed interval", (data) => { data.measurements[1].attempts[0].intervals[0].end_ms = 0; }],
   ["completed ping without summary", (data) => { data.measurements[0].summary = null; }],
   ["completed transfer without intervals", (data) => { data.measurements[1].attempts[0].intervals = []; }],
+  ["burst loaded ping cadence", (data) => { data.measurements[1].attempts[0].loaded_ping.samples[1].elapsed_ms = 100; }],
   ["truncated interval timeline", (data) => {
     const attempt = data.measurements[1].attempts[0];
     attempt.intervals[1].end_ms = 9000;

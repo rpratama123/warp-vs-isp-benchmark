@@ -102,7 +102,7 @@ wb_trace() {
 
 wb_ping_adapter() {
   local address=$1 count=$2 interval=$3 timeout_ms=$4 payload=$5 process_id=${6:-}
-  local sequence=1 series_start probe_start elapsed result rtt next now sleep_ms
+  local sequence=1 series_start probe_start elapsed result rtt next minimum_next now sleep_ms
   command -v ping >/dev/null 2>&1 || return 2
   series_start=$(wb_uptime_ms)
   while (( sequence <= count )); do
@@ -118,8 +118,12 @@ wb_ping_adapter() {
       printf '{"sequence":%d,"elapsed_ms":%d,"outcome":"local_error","rtt_us":null,"error_code":"PING_LOCAL_ERROR"}\n' "$sequence" "$elapsed"
     fi
     ((sequence++)); (( sequence > count )) && break
-    next=$((series_start + (sequence - 1) * interval)); now=$(wb_uptime_ms); sleep_ms=$((next - now))
-    (( sleep_ms > 0 )) && sleep "$(awk -v value="$sleep_ms" 'BEGIN { printf "%.3f", value / 1000 }')"
+    next=$((series_start + (sequence - 1) * interval)); minimum_next=$((probe_start + interval))
+    (( next < minimum_next )) && next=$minimum_next
+    while :; do
+      now=$(wb_uptime_ms); sleep_ms=$((next - now)); (( sleep_ms <= 0 )) && break
+      sleep "$(awk -v value="$sleep_ms" 'BEGIN { printf "%.3f", value / 1000 }')"
+    done
   done
 }
 
@@ -218,8 +222,10 @@ wb_finalize_state() {
     | .run.profile_complete=([.measurements[] | (.status=="completed" and (if .kind=="idle_ping" then true else (.selected_attempt as $selected | any(.attempts[]; .number==$selected and .status=="completed" and .loaded_ping.status=="completed" and (.intervals|length)>0)) end))] | all)
     | . as $state | .run.comparison_valid=(
         ([.phases[]|select(.status=="completed" and .verification_disposition=="verified")|.id]|sort)==["baseline","warp"] and
-        any(.measurements[]; .phase_id=="baseline" and .status=="completed" and . as $baseline |
-          any($state.measurements[]; .phase_id=="warp" and .status=="completed" and .target_id==$baseline.target_id and .kind==$baseline.kind and .endpoint==$baseline.endpoint and .settings==$baseline.settings)))
+        any(.measurements[];
+          .phase_id=="baseline" and .status=="completed" and
+          (. as $baseline | any($state.measurements[];
+            .phase_id=="warp" and .status=="completed" and .target_id==$baseline.target_id and .kind==$baseline.kind and .endpoint==$baseline.endpoint and .settings==$baseline.settings))))
     | .run.status=(if $status=="auto" then (if .run.profile_complete then "completed" else "partial" end) else $status end)
     | .run.ended_at=$checkpoint_now' --arg status "$status"
 }
@@ -298,7 +304,7 @@ wb_run_transfer() {
     if wb_wait_for_iperf_start "$pid" "$output"; then
       loaded_samples=$(wb_ping_adapter "$address" 10000 "$(wb_jq -r '.configuration.loaded_ping.interval_ms' "$path")" "$(wb_jq -r '.configuration.loaded_ping.timeout_ms' "$path")" "$(wb_jq -r '.configuration.loaded_ping.payload_bytes' "$path")" "$pid" | wb_jq -sc '.')
       wait "$pid"; exit_code=$?; WARP_BENCH_ACTIVE_PID=
-      if (( exit_code == 0 )) && parsed=$(wb_normalize_iperf "$direction" < "$output"); then
+      if (( exit_code == 0 )) && parsed=$(wb_normalize_iperf "$direction" < "$output" 2>/dev/null); then
         loaded_samples=$(wb_jq -c --argjson duration "$(wb_jq -r '.receiver.duration_ms' <<<"$parsed")" '[.[]|select(.elapsed_ms < $duration)]' <<<"$loaded_samples")
         loaded_summary=$(wb_ping_summary <<<"$loaded_samples")
         if [[ $(wb_jq -r '.probes_sent' <<<"$loaded_summary") == 0 ]]; then
