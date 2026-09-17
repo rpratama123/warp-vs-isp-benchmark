@@ -144,10 +144,12 @@ sleep 0.15
 printf '%s\n' '{"event":"end","data":{}}'
 EOF
 chmod 700 "$malformed_iperf"
-wb_state_apply "$result" '.configuration.timing.server_busy_retries=0'
+parser_result=$temporary/parser-result.json
+cp "$result" "$parser_result"
+wb_state_apply "$parser_result" '.configuration.timing.server_busy_retries=0'
 parser_stderr=$temporary/parser-stderr
-wb_run_transfer "$result" baseline-test-target-upload-1 "$malformed_iperf" 2> "$parser_stderr"
-assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-upload-1")|.status' "$result")" failed 'malformed iperf output fails the transfer cleanly'
+wb_run_transfer "$parser_result" baseline-test-target-upload-1 "$malformed_iperf" 2> "$parser_stderr"
+assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-upload-1")|.status' "$parser_result")" failed 'malformed iperf output fails the transfer cleanly'
 assert_equal "$(wc -c < "$parser_stderr")" 0 'expected parser rejection does not leak jq diagnostics'
 
 wb_state_apply "$result" '(.measurements[]|select(.id=="baseline-test-target-idle")) |= (.status="running"|.started_at=$checkpoint_now)'
