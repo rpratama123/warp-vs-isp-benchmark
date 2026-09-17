@@ -8,8 +8,9 @@
     "fixtures": "node tests/generate-fixtures.mjs",
     "test:contracts": "node tests/generate-fixtures.mjs --check && node tests/validate-contracts.mjs",
     "test:runner": "node tests/validate-runner.mjs",
+    "test:bash": "bash tests/warp-bench.tests.sh",
     "test:powershell": "pwsh -NoLogo -NoProfile -File tests/warp-bench.tests.ps1",
-    "test": "npm run test:contracts && npm run test:runner"
+    "test": "npm run test:contracts && npm run test:runner && npm run test:bash"
   },
   "devDependencies": {
     "ajv": "8.20.0"

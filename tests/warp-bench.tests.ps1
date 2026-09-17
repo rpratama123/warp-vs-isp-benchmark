@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $scriptPath = Join-Path (Split-Path -Parent $PSScriptRoot) 'scripts\warp-bench.ps1'
 . $scriptPath
+$sharedFixture = Get-Content (Join-Path $PSScriptRoot 'fixtures/normalization-parity.json') -Raw | ConvertFrom-Json
 
 $failures = 0
 function Assert-Equal($Expected, $Actual, [string]$Name) {
@@ -22,6 +23,8 @@ Assert-Equal 25 $summary.reply_loss_percent 'ping loss calculation'
 Assert-Equal 3 $summary.rtt_median_ms 'median calculation'
 Assert-Equal 5 $summary.rtt_p95_ms 'nearest-rank p95 calculation'
 Assert-Equal 2 $summary.rtt_adjacent_mean_abs_diff_ms 'missing probe breaks adjacency'
+$sharedSummary = Get-WarpBenchPingSummary @($sharedFixture.ping_samples)
+Assert-Equal $sharedFixture.ping_summary.rtt_stddev_ms $sharedSummary.rtt_stddev_ms 'shared ping fixture parity'
 
 $trace = ConvertFrom-WarpBenchTrace "ip=203.0.113.4`nwarp=plus`ncolo=CGK" @('on', 'plus') 'test-trace'
 Assert-Equal 'plus' $trace.observed_warp_state 'trace WARP parser'
@@ -44,6 +47,8 @@ Assert-Equal 2000 $parsed.intervals[1].end_ms 'interval duration coverage'
 $parserRejectedFailure = $false
 try { ConvertFrom-WarpBenchIperfJson '{"error":"server is busy"}' 'download' | Out-Null } catch { $parserRejectedFailure = $true }
 Assert-True $parserRejectedFailure 'iperf failure is not converted to zero throughput'
+$sharedIperf = ConvertFrom-WarpBenchIperfJson ($sharedFixture.iperf | ConvertTo-Json -Compress -Depth 10) 'upload'
+Assert-Equal $sharedFixture.iperf_normalized.receiver_bits_per_second $sharedIperf.receiver.bits_per_second 'shared iperf fixture parity'
 
 $streamJson = @'
 {"event":"start","data":{"test_start":{"duration":2}}}

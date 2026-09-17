@@ -1,0 +1,12 @@
+{
+  "ping_samples": [
+    {"sequence":1,"elapsed_ms":0,"outcome":"reply","rtt_us":1000,"error_code":null},
+    {"sequence":2,"elapsed_ms":1000,"outcome":"reply","rtt_us":3000,"error_code":null},
+    {"sequence":3,"elapsed_ms":2000,"outcome":"timeout","rtt_us":null,"error_code":null},
+    {"sequence":4,"elapsed_ms":3000,"outcome":"reply","rtt_us":5000,"error_code":null},
+    {"sequence":5,"elapsed_ms":4000,"outcome":"local_error","rtt_us":null,"error_code":"PING_LOCAL_ERROR"}
+  ],
+  "ping_summary": {"probes_recorded":5,"probes_sent":4,"replies_received":3,"timed_out":1,"local_failures":1,"reply_loss_percent":25,"rtt_min_ms":1,"rtt_mean_ms":3,"rtt_median_ms":3,"rtt_p95_ms":5,"rtt_max_ms":5,"rtt_stddev_ms":1.633,"rtt_adjacent_mean_abs_diff_ms":2},
+  "iperf": {"intervals":[{"sum":{"start":0,"end":1,"bytes":1050,"omitted":false}},{"sum":{"start":1,"end":2,"bytes":1050,"omitted":false}}],"end":{"sum_sent":{"seconds":2,"bytes":2100,"retransmits":2},"sum_received":{"seconds":2,"bytes":2000}}},
+  "iperf_normalized": {"receiver_bytes":2000,"receiver_duration_ms":2000,"receiver_bits_per_second":8000}
+}

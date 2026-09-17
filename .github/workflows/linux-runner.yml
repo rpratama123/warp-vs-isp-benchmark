@@ -1,0 +1,27 @@
+name: Linux runner
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    env:
+      WARP_BENCH_TEST_OUTPUT: runner-result.json
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Shell syntax
+        run: bash -n scripts/warp-bench.sh tests/warp-bench.tests.sh
+      - run: npm test
+      - name: Bash runner tests and result
+        run: npm run test:bash
+      - name: Validate runner-produced result
+        run: node tests/validate-contracts.mjs "$WARP_BENCH_TEST_OUTPUT"
+      - name: Dependency audit
+        run: npm audit --omit=optional

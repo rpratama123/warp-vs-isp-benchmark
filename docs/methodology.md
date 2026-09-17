@@ -289,6 +289,28 @@ required.
   `warp=plus`, and explain that this HTTPS check does not prove the ICMP or
   iperf route.
 
+## Linux / Unraid Acceptance
+
+The Linux runner is a Bash-only x86_64 script: it installs no packages, needs
+no root, and makes no permanent system changes.
+
+- Run `bash -n scripts/warp-bench.sh` and `npm run test:bash` on Linux.
+- Run directly and with `curl -fsSL <release-url>/warp-bench.sh | bash`; all
+  interactive reads use `/dev/tty`.
+- Prefer compatible system `jq` and `iperf3`. jq downloads are SHA-256 checked.
+  Linux iperf3 remains **candidate** (the runner does not alter manifest status),
+  requires explicit consent, and is hash/version/capability checked before a
+  temporary download.
+- Use `/mnt/user` or another persistent Unraid share. The output probe tests
+  write and atomic rename, warns about volatile/unknown paths, and requests
+  confirmation. Local output paths are not persisted in JSON.
+- Confirm pinned IPv4/port parity, trace checks, retries, complete plans,
+  atomic checkpoints, interruption/baseline-only/partial states, redaction,
+  summary output, and throughput continuation when ping is unavailable.
+
+This is an acceptance checklist, not a claim of actual Unraid field validation;
+endpoint availability and candidate-binary provenance remain field limitations.
+
 ## Interpretation Limitations
 
 Public iperf3 servers can be busy, rate-limited, geographically mislabeled, or

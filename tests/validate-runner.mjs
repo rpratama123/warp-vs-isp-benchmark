@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import assert from "node:assert/strict";
 
 const script = await readFile(resolve("scripts/warp-bench.ps1"), "utf8");
+const bash = await readFile(resolve("scripts/warp-bench.sh"), "utf8");
 const targets = JSON.parse(script.match(/\$script:TargetManifestJson = @'\r?\n([^]*?)\r?\n'@/)[1]);
 const artifact = JSON.parse(script.match(/\$script:IperfArtifactJson = @'\r?\n([^]*?)\r?\n'@/)[1]);
 const manifestTargets = JSON.parse(await readFile(resolve("manifests/targets.json"), "utf8"));
@@ -33,3 +34,35 @@ assert.match(script, /--json-stream/, "iperf transfer start is observable for lo
 assert.match(script, /SecurityProtocolType\]::Tls12/, "PowerShell 5.1 dependency download enables TLS 1.2");
 assert.doesNotMatch(script, /Get-Content[^\r\n]+manifests|Join-Path[^\r\n]+manifests/i, "runtime does not require repository manifests");
 console.log("Runner static and embedded-metadata checks passed.");
+
+const embedded = (name) => JSON.parse(bash.match(new RegExp(`${name}='([^']+)'`))[1]);
+const bashTargets = embedded("WARP_BENCH_TARGETS_JSON");
+const bashJq = embedded("WARP_BENCH_JQ_ARTIFACT");
+const bashIperf = embedded("WARP_BENCH_IPERF_ARTIFACT");
+assert.equal(bashTargets.manifest_version, manifestTargets.manifest_version, "Bash embedded target manifest version");
+assert.deepEqual(bashTargets.targets.map(({ id }) => id), manifestTargets.targets.filter(({ enabled }) => enabled).map(({ id }) => id), "Bash embedded enabled targets");
+for (const target of bashTargets.targets) {
+  const source = manifestTargets.targets.find(({ id }) => id === target.id);
+  assert.ok(source, `Bash target ${target.id} exists`);
+  assert.deepEqual(
+    target.endpoints.map(({ id }) => id),
+    source.endpoints.map(({ id }) => id),
+    `Bash embeds every endpoint for ${target.id}`
+  );
+  for (const endpoint of target.endpoints) {
+    const expected = source.endpoints.find(({ id }) => id === endpoint.id);
+    for (const key of ["priority", "hostname", "verification_status"]) {
+      assert.equal(endpoint[key], expected[key], `Bash endpoint ${endpoint.id} ${key}`);
+    }
+    assert.deepEqual(endpoint.ports, expected.ports, `Bash endpoint ${endpoint.id} ports`);
+  }
+}
+for (const [actual, id] of [[bashJq, "jq-1.8.2-linux-x86_64"], [bashIperf, "iperf3-3.21-linux-x86_64-userdocs"]]) {
+  const source = binaries.artifacts.find((item) => item.id === id);
+  assert.ok(source, `${id} exists in binary manifest`);
+  assert.deepEqual(actual, source, `${id} embeds the full artifact metadata`);
+}
+assert.equal(bashIperf.use_status, "candidate", "Linux iperf candidate status remains candidate");
+for (const marker of ["/dev/tty", "BASH_SOURCE", "sha256sum", "chmod", "LC_ALL=C", "/proc/uptime", "--proto '=https'", "--ipv4", "--json-stream", "--get-server-output", "-R", "temporary_download", "server_busy_retries", "baseline", "warp", "loaded_ping", "receiver", "wb_checkpoint", "wb_state_apply", "wb_finalize_state", "wb_resolve_ipv4", "wb_tcp_preflight", "wb_confirm_route", "wb_redact", "candidate, not approved", "does not support resume"]) assert.match(bash, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `Bash security/behavior marker ${marker}`);
+assert.doesNotMatch(bash, /eval\s|source\s+<\(/, "Bash does not evaluate downloaded code");
+console.log("Bash embedded-metadata and security/behavior checks passed.");
