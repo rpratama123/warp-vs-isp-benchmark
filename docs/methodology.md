@@ -13,6 +13,22 @@ or predict performance to destinations that were not measured.
 
 The first schema version supports IPv4 only.
 
+## Supported Bash Platforms
+
+The Bash runner supports Linux x86-64 and macOS 14 or newer on x86-64 and
+Apple Silicon. macOS uses the system `iperf3` only; it must expose
+`--json-stream`, `--get-server-output`, and reverse (`-R`) mode. The runner does
+not download a macOS iperf3 candidate because its provenance is insufficient
+(and the available Intel candidate requires macOS 15). No user-owned physical
+Mac field run has been accepted. Hosted CI runs macOS 14 ARM64 and exercises
+macOS 15 Intel with the system Bash. These hosted checks exercise both
+architectures but cannot establish user-owned physical Mac field-network or
+tool compatibility.
+
+On macOS, the adapter capability-checks the system Perl `Time::HiRes`
+`CLOCK_MONOTONIC` facility for monotonic milliseconds and uses it without any
+package installation. BSD `date` is not used for fractional UTC timestamps.
+
 ## Fair Comparison Rules
 
 A baseline/WARP measurement pair is comparable only when all of these match:

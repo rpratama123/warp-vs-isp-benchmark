@@ -170,3 +170,13 @@ Desired build properties:
 The final project-hosted artifact URLs and hashes do not exist yet and are
 therefore deliberately absent from the manifest. Candidate entries are research
 records, not placeholders that a runner may trust.
+
+## macOS Runner Limitation
+
+macOS 14+ runs may use only a compatible system `iperf3`; the runner never
+downloads either macOS candidate. This is deliberate: the Intel candidate needs
+macOS 15 and neither candidate has sufficient stable provenance. There is no
+accepted user-owned physical-Mac field run. Hosted CI uses the public
+`macos-14` ARM64 and `macos-15-intel` images. These checks cover both
+architectures but do not prove user-owned physical Mac compatibility or
+field-network acceptance.

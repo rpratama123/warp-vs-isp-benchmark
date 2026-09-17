@@ -25,6 +25,23 @@ pipe_probe=$(env -u WARP_BENCH_SOURCE_ONLY WARP_BENCH_ENTRY_PROBE=1 bash < "$roo
 assert_equal "$pipe_probe" pipe-entry-reached 'pipe-to-shell reaches the interactive entry point'
 assert_equal "$(wb_seconds_to_ms 3000000)" 3000000000 'monotonic milliseconds exceed 32-bit uptime'
 
+host_os=$(uname -s)
+host_arch=$(uname -m)
+if [[ $host_os == Darwin ]]; then host_version=$(sw_vers -productVersion); else host_version=$(uname -r); fi
+WARP_BENCH_OS=Darwin WARP_BENCH_ARCH=arm64 WARP_BENCH_OS_VERSION=14.0 wb_platform
+assert_equal "$WARP_BENCH_OS_FAMILY/$WARP_BENCH_ARCHITECTURE" macos/aarch64 'Darwin arm64 platform metadata normalizes'
+wb_select_jq_artifact
+assert_equal "$(jq -r .id <<<"$WARP_BENCH_JQ_ARTIFACT")" jq-1.8.2-macos-aarch64 'Darwin arm64 selects pinned jq metadata'
+WARP_BENCH_OS=Darwin WARP_BENCH_ARCH=x86_64 WARP_BENCH_OS_VERSION=14.0 wb_platform
+wb_select_jq_artifact
+assert_equal "$(jq -r .id <<<"$WARP_BENCH_JQ_ARTIFACT")" jq-1.8.2-macos-x86_64 'Darwin x86_64 selects pinned jq metadata'
+WARP_BENCH_OS=Linux WARP_BENCH_ARCH=x86_64 WARP_BENCH_OS_VERSION=test wb_platform
+wb_select_jq_artifact
+assert_equal "$(jq -r .id <<<"$WARP_BENCH_JQ_ARTIFACT")" jq-1.8.2-linux-x86_64 'Linux selects pinned jq metadata'
+WARP_BENCH_OS=$host_os WARP_BENCH_ARCH=$host_arch WARP_BENCH_OS_VERSION=$host_version wb_platform
+printf 'hash fixture\n' > "$temporary/hash"
+assert_equal "$(wb_sha256 "$temporary/hash")" 125c0ee95b258a7abba17b1211a5589b6a8b3cdd95bd184980980d63324fb7cd 'portable SHA-256 adapter'
+
 cadence_dir=$temporary/cadence
 mkdir -p "$cadence_dir/bin"
 printf '0\n' > "$cadence_dir/clock"
@@ -54,6 +71,40 @@ cadence_samples=$(
   wb_ping_adapter 192.0.2.1 3 500 1000 32 | jq -sc '[.[].elapsed_ms]|join(",")'
 )
 assert_equal "$cadence_samples" '"0,1000,1500"' 'timeout recovery does not burst catch-up probes'
+
+darwin_dir=$temporary/darwin
+mkdir -p "$darwin_dir/bin"
+cat > "$darwin_dir/bin/ping" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "$*" > "$WARP_BENCH_FAKE_PING_ARGS"
+printf '%s\n' "$WARP_BENCH_FAKE_PING_OUTPUT"
+EOF
+chmod 700 "$darwin_dir/bin/ping"
+darwin_sample=$(PATH="$darwin_dir/bin:$PATH" WARP_BENCH_FAKE_PING_ARGS="$darwin_dir/args" WARP_BENCH_FAKE_PING_OUTPUT='64 bytes from 192.0.2.1: icmp_seq=0 ttl=57 time=1.25 ms' WARP_BENCH_OS_FAMILY=macos wb_ping_adapter 192.0.2.1 1 1000 250 32)
+assert_equal "$(jq -r '.outcome + ":" + (.rtt_us|tostring)' <<<"$darwin_sample")" reply:1250 'Darwin ping reply parsing'
+assert_equal "$(<"$darwin_dir/args")" '-n -c 1 -W 250 -s 32 192.0.2.1' 'Darwin literal IPv4 ping uses native arguments'
+darwin_sample=$(PATH="$darwin_dir/bin:$PATH" WARP_BENCH_FAKE_PING_ARGS="$darwin_dir/args" WARP_BENCH_FAKE_PING_OUTPUT='Request timeout for icmp_seq 0' WARP_BENCH_OS_FAMILY=macos wb_ping_adapter 192.0.2.1 1 1000 250 32)
+assert_equal "$(jq -r .outcome <<<"$darwin_sample")" timeout 'Darwin request-timeout parsing'
+darwin_sample=$(PATH="$darwin_dir/bin:$PATH" WARP_BENCH_FAKE_PING_ARGS="$darwin_dir/args" WARP_BENCH_FAKE_PING_OUTPUT=$'--- 192.0.2.1 ping statistics ---\n1 packets transmitted, 0 packets received, 100.0% packet loss' WARP_BENCH_OS_FAMILY=macos wb_ping_adapter 192.0.2.1 1 1000 250 32)
+assert_equal "$(jq -r .outcome <<<"$darwin_sample")" timeout 'Darwin packet-loss timeout parsing'
+darwin_utc=$(WARP_BENCH_OS_FAMILY=macos wb_utc)
+[[ $darwin_utc =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] || { printf 'FAIL: Darwin UTC timestamp\n' >&2; exit 1; }
+darwin_uptime=$(WARP_BENCH_OS_FAMILY=macos wb_uptime_ms)
+[[ $darwin_uptime =~ ^[0-9]+$ ]] || { printf 'FAIL: Darwin monotonic milliseconds\n' >&2; exit 1; }
+printf 'PASS: Darwin UTC and monotonic clock adapters\n'
+
+if WARP_BENCH_OS_FAMILY=macos wb_timeout 2 /bin/sh -c 'exit 0'; then timeout_status=0; else timeout_status=$?; fi
+assert_equal "$timeout_status" 0 'Darwin timeout wrapper preserves normal completion'
+timeout_marker=$darwin_dir/timeout-marker
+if WARP_BENCH_OS_FAMILY=macos WARP_BENCH_TIMEOUT_GRACE_SECONDS=0.1 wb_timeout 1 /bin/sh -c 'trap "printf term > \"$1\"; exit 0" TERM; while :; do :; done' _ "$timeout_marker"; then timeout_status=0; else timeout_status=$?; fi
+assert_equal "$timeout_status" 124 'Darwin timeout wrapper reports deadline'
+assert_equal "$(<"$timeout_marker")" term 'Darwin timeout wrapper terminates child'
+cat > "$darwin_dir/bin/dscacheutil" <<'EOF'
+#!/usr/bin/env bash
+printf 'name: example.test\nip_address: 192.0.2.9\nip_address: 2001:db8::1\n'
+EOF
+chmod 700 "$darwin_dir/bin/dscacheutil"
+assert_equal "$(PATH="$darwin_dir/bin:$PATH" WARP_BENCH_OS_FAMILY=macos wb_resolve_ipv4 example.test)" 192.0.2.9 'Darwin dscacheutil DNS selects IPv4 only'
 
 summary=$(jq -c '.ping_samples' "$fixture" | wb_ping_summary)
 assert_equal "$(jq -c . <<<"$summary")" "$(jq -c '.ping_summary' "$fixture")" 'Bash ping normalization parity'
@@ -161,7 +212,10 @@ assert_equal "$(jq -r '.measurements[]|select(.id=="baseline-test-target-idle")|
 assert_equal "$(jq -r '.run.ended_at == .run.updated_at' "$result")" true 'terminal checkpoint timestamps agree'
 
 if [[ -n ${WARP_BENCH_TEST_OUTPUT:-} ]]; then
-  cp "$result" "$WARP_BENCH_TEST_OUTPUT"
+  if [[ ${WARP_BENCH_CI_MACOS:-0} == 1 ]]; then
+    WARP_BENCH_OS=Darwin WARP_BENCH_ARCH=$(uname -m) WARP_BENCH_OS_VERSION=14.0 wb_platform
+    wb_checkpoint "$WARP_BENCH_TEST_OUTPUT" "$(wb_new_state quick "$target" 3.21.0 system macos-ci 2026-09-16T10:00:00Z)"
+  else cp "$result" "$WARP_BENCH_TEST_OUTPUT"; fi
 fi
 
 printf 'All Bash runner tests passed.\n'

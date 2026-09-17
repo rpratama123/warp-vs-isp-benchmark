@@ -1,0 +1,36 @@
+name: macOS runner
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  bash:
+    strategy:
+      matrix:
+        include:
+          - runner: macos-14
+            architecture: aarch64
+          - runner: macos-15-intel
+            architecture: x86_64
+    runs-on: ${{ matrix.runner }}
+    env:
+      WARP_BENCH_TEST_OUTPUT: runner-result.json
+      WARP_BENCH_CI_MACOS: "1"
+      WARP_BENCH_EXPECTED_ARCHITECTURE: ${{ matrix.architecture }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: System Bash syntax
+        run: /bin/bash -n scripts/warp-bench.sh tests/warp-bench.tests.sh
+      - name: Contract and static tests
+        run: npm run test:contracts && npm run test:runner
+      - name: Behavioral Bash 3.2 tests
+        run: /bin/bash tests/warp-bench.tests.sh
+      - name: Validate macOS-shaped runner result
+        run: node tests/validate-contracts.mjs "$WARP_BENCH_TEST_OUTPUT" && node -e 'const x=JSON.parse(require("fs").readFileSync(process.env.WARP_BENCH_TEST_OUTPUT,"utf8")); if(x.environment.os.family!=="macos" || x.environment.os.name!=="Darwin" || x.environment.architecture!==process.env.WARP_BENCH_EXPECTED_ARCHITECTURE) process.exit(1)'
+      - run: npm audit --omit=optional

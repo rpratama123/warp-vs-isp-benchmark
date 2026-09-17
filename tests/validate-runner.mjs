@@ -37,7 +37,7 @@ console.log("Runner static and embedded-metadata checks passed.");
 
 const embedded = (name) => JSON.parse(bash.match(new RegExp(`${name}='([^']+)'`))[1]);
 const bashTargets = embedded("WARP_BENCH_TARGETS_JSON");
-const bashJq = embedded("WARP_BENCH_JQ_ARTIFACT");
+const bashJqs = ["LINUX_X86_64", "MACOS_X86_64", "MACOS_AARCH64"].map((suffix) => embedded(`WARP_BENCH_JQ_ARTIFACT_${suffix}`));
 const bashIperf = embedded("WARP_BENCH_IPERF_ARTIFACT");
 assert.equal(bashTargets.manifest_version, manifestTargets.manifest_version, "Bash embedded target manifest version");
 assert.deepEqual(bashTargets.targets.map(({ id }) => id), manifestTargets.targets.filter(({ enabled }) => enabled).map(({ id }) => id), "Bash embedded enabled targets");
@@ -57,12 +57,13 @@ for (const target of bashTargets.targets) {
     assert.deepEqual(endpoint.ports, expected.ports, `Bash endpoint ${endpoint.id} ports`);
   }
 }
-for (const [actual, id] of [[bashJq, "jq-1.8.2-linux-x86_64"], [bashIperf, "iperf3-3.21-linux-x86_64-userdocs"]]) {
+for (const [actual, id] of [...bashJqs.map((item) => [item, item.id]), [bashIperf, "iperf3-3.21-linux-x86_64-userdocs"]]) {
   const source = binaries.artifacts.find((item) => item.id === id);
   assert.ok(source, `${id} exists in binary manifest`);
   assert.deepEqual(actual, source, `${id} embeds the full artifact metadata`);
 }
 assert.equal(bashIperf.use_status, "candidate", "Linux iperf candidate status remains candidate");
-for (const marker of ["/dev/tty", "BASH_SOURCE", "sha256sum", "chmod", "LC_ALL=C", "/proc/uptime", "--proto '=https'", "--ipv4", "--json-stream", "--get-server-output", "-R", "temporary_download", "server_busy_retries", "baseline", "warp", "loaded_ping", "receiver", "wb_checkpoint", "wb_state_apply", "wb_finalize_state", "wb_resolve_ipv4", "wb_tcp_preflight", "wb_confirm_route", "wb_redact", "candidate, not approved", "does not support resume"]) assert.match(bash, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `Bash security/behavior marker ${marker}`);
+for (const marker of ["/dev/tty", "BASH_SOURCE", "wb_sha256", "shasum -a 256", "dscacheutil", "Time::HiRes", "wb_timeout", "--json-stream", "--get-server-output", "temporary_download", "wb_select_jq_artifact", "macOS requires a compatible system iperf3", "candidate, not approved", "does not support resume"]) assert.match(bash, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `Bash security/behavior marker ${marker}`);
 assert.doesNotMatch(bash, /eval\s|source\s+<\(/, "Bash does not evaluate downloaded code");
+assert.doesNotMatch(bash, /\$\{[^}]+,,\}/, "Bash avoids Bash 4 lowercase expansion");
 console.log("Bash embedded-metadata and security/behavior checks passed.");
