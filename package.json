@@ -5,12 +5,14 @@
   "description": "Contracts and validation for the WARP versus ISP benchmark",
   "type": "module",
   "scripts": {
+    "build:viewer": "node scripts/embed-viewer-schema.mjs",
     "fixtures": "node tests/generate-fixtures.mjs",
     "test:contracts": "node tests/generate-fixtures.mjs --check && node tests/validate-contracts.mjs",
     "test:runner": "node tests/validate-runner.mjs",
+    "test:viewer": "node scripts/embed-viewer-schema.mjs --check && node tests/viewer.tests.mjs",
     "test:bash": "bash tests/warp-bench.tests.sh",
     "test:powershell": "pwsh -NoLogo -NoProfile -File tests/warp-bench.tests.ps1",
-    "test": "npm run test:contracts && npm run test:runner && npm run test:bash"
+    "test": "npm run test:contracts && npm run test:runner && npm run test:viewer && npm run test:bash"
   },
   "devDependencies": {
     "ajv": "8.20.0"

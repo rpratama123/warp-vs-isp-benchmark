@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-19T08:36:30Z",
+  "title": "Design System: Route Dispatch",
+  "extensions": {
+    "colorMeta": {
+      "direct-blue": { "role": "primary", "displayName": "Direct Blue", "canonical": "#285c88", "tonalRamp": ["#0b1d2b", "#15344c", "#204b6e", "#2d6694", "#5484a7", "#88a9bd", "#c0d3df", "#edf4f7"] },
+      "warp-orange": { "role": "secondary", "displayName": "WARP Orange", "canonical": "#b84b23", "tonalRamp": ["#321209", "#5a2110", "#823318", "#ad4722", "#cc6d48", "#df9d82", "#efcbbb", "#faeee8"] },
+      "dispatch-paper": { "role": "neutral", "displayName": "Dispatch Paper", "canonical": "#dfe5e3", "tonalRamp": ["#1a1e1d", "#303635", "#4a5250", "#68716f", "#89928f", "#adb5b2", "#d1d8d5", "#f2f5f3"] },
+      "carbon-ink": { "role": "neutral", "displayName": "Carbon Ink", "canonical": "#18201f", "tonalRamp": ["#111615", "#202a28", "#35423f", "#53615e", "#788581", "#a3ada9", "#d0d6d3", "#f0f2f1"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Dispatch Decision", "purpose": "Qualified route decisions and the import thesis." },
+      "body": { "displayName": "Operational Reading", "purpose": "Evidence explanations, records, and methodology caveats." },
+      "label": { "displayName": "Record Label", "purpose": "Uppercase field labels, statuses, and route metadata." }
+    },
+    "shadows": [
+      { "name": "sheet-lift", "value": "0 10px 24px rgba(31, 38, 36, .11), 0 2px 6px rgba(31, 38, 36, .07)", "purpose": "Primary handled sheets only." },
+      { "name": "active-strip", "value": "0 8px 20px rgba(24, 32, 31, .12)", "purpose": "A destination advanced into active inspection." }
+    ],
+    "motion": [
+      { "name": "record-advance", "value": "120ms ease-out", "purpose": "Strip hover and selection movement." },
+      { "name": "field-response", "value": "140ms ease-out", "purpose": "Import target and control feedback." }
+    ],
+    "breakpoints": [
+      { "name": "record-collapse", "value": "950px" },
+      { "name": "mobile", "value": "640px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary File Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Opens a local benchmark result from the import sheet.",
+      "html": "<button class=\"ds-file-button\">OPEN RESULT JSON</button>",
+      "css": ".ds-file-button { min-height:48px; padding:0 22px; border:1px solid #18201f; border-radius:3px; color:#f6f8f5; background:#18201f; font:700 16px Aptos, 'Segoe UI', sans-serif; letter-spacing:.025em; transition:background 140ms ease-out; } .ds-file-button:hover { background:#303937; } .ds-file-button:focus-visible { outline:3px solid #6c3cc4; outline-offset:3px; }"
+    },
+    {
+      "name": "Comparison Cleared Stamp",
+      "kind": "chip",
+      "description": "Confirms that the imported run is eligible for a qualified comparison.",
+      "html": "<span class=\"ds-stamp\">COMPARISON CLEARED</span>",
+      "css": ".ds-stamp { display:inline-flex; align-items:center; min-height:34px; padding:0 11px; border:2px solid #256947; border-radius:2px; color:#256947; background:#dce9df; font:900 12px Aptos, 'Segoe UI', sans-serif; letter-spacing:.12em; transform:rotate(-1deg); }"
+    },
+    {
+      "name": "Destination Strip",
+      "kind": "custom",
+      "description": "Aligns destination identity and paired route evidence in one operational record.",
+      "html": "<button class=\"ds-strip\"><span>Singapore<br><small>SG · 15.235.182.181:5201</small></span><span class=\"ds-direct\">DIRECT<br><b>18.4 ms</b></span><span class=\"ds-warp\">WARP<br><b>16.1 ms</b></span></button>",
+      "css": ".ds-strip { display:grid; grid-template-columns:1.2fr 1fr 1fr; width:100%; min-height:96px; padding:0; border:0; border-bottom:1px solid #747b77; color:#18201f; background:#f6f8f5; text-align:left; } .ds-strip > span { padding:18px 20px; border-right:1px dashed #a8aaa2; font:700 15px Aptos, 'Segoe UI', sans-serif; } .ds-strip small { color:#5a6460; font-size:11px; } .ds-strip b { display:inline-block; margin-top:8px; font-size:22px; font-variant-numeric:tabular-nums; } .ds-direct { border-top:5px solid #285c88; color:#285c88; } .ds-warp { border-top:5px solid #b84b23; color:#b84b23; } .ds-strip:hover { transform:translateY(-2px); box-shadow:0 7px 14px rgba(24,32,31,.10); } .ds-strip:focus-visible { outline:3px solid #6c3cc4; outline-offset:3px; }"
+    },
+    {
+      "name": "Metric Register Tab",
+      "kind": "nav",
+      "description": "Switches among evidence views without hiding destination context.",
+      "html": "<nav class=\"ds-tabs\"><button class=\"ds-tab ds-selected\">LATENCY &amp; LOSS</button><button class=\"ds-tab\">THROUGHPUT</button></nav>",
+      "css": ".ds-tabs { display:flex; } .ds-tab { min-height:43px; padding:8px 16px; border:0; border-right:1px solid #a8aaa2; border-bottom:1px solid #747b77; color:#18201f; background:transparent; font:400 14px Aptos, 'Segoe UI', sans-serif; } .ds-tab:hover { background:#e8edeb; } .ds-tab.ds-selected { color:#f6f8f5; background:#18201f; } .ds-tab:focus-visible { outline:3px solid #6c3cc4; outline-offset:3px; }"
+    },
+    {
+      "name": "Dispatch Select",
+      "kind": "input",
+      "description": "Chooses timeline direction or repetition inside the evidence bay.",
+      "html": "<label class=\"ds-field\">DIRECTION<select><option>Download</option><option>Upload</option></select></label>",
+      "css": ".ds-field { display:grid; gap:6px; color:#5a6460; font:700 11px Aptos, 'Segoe UI', sans-serif; letter-spacing:.07em; } .ds-field select { min-height:40px; padding:0 34px 0 10px; border:1px solid #747b77; border-radius:3px; color:#18201f; background:#f6f8f5; font-size:14px; } .ds-field select:focus-visible { outline:3px solid #6c3cc4; outline-offset:3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Route Dispatch Board",
+    "overview": "Route Dispatch treats measurement evidence like an operational release: routes are not declared fit until verification and compatibility checks clear them. The visual language is compact, physical, and procedural without imitating a terminal. Broad sheets establish hierarchy; destination strips carry aligned route records; stamps communicate consequential states.",
+    "keyCharacteristics": ["Cool low-glare paper and dark carbon ink.", "Direct blue and WARP orange always retain stable route meaning.", "Square, ruled structures with minimal corner rounding.", "Evidence validity is visually stronger than performance outcome.", "Motion advances records into inspection rather than decorating the page."],
+    "rules": [
+      { "name": "The Stable Route Ink Rule", "body": "Blue always means Direct and orange always means WARP; neither color is reused to mean better or worse.", "section": "colors" },
+      { "name": "The Clearance Before Outcome Rule", "body": "A verdict state must remain visually and semantically separate from which route performs better.", "section": "colors" },
+      { "name": "The Numerals Are Evidence Rule", "body": "Measurement values use tabular numerals; route labels and units never compete with the number's weight.", "section": "typography" },
+      { "name": "The Working Surface Rule", "body": "Elevation indicates a sheet being handled or a record being selected, never a decorative card collection.", "section": "elevation" }
+    ],
+    "dos": ["Do disclose evidence validity before stating a performance lean.", "Do keep Direct and WARP in stable blue/orange positions and pair measurements spatially.", "Do use ruled records, tabular numerals, and explicit status language for dense evidence.", "Do collapse grids into readable record sequences rather than miniaturizing them on mobile."],
+    "donts": ["Don't use route colors as better/worse colors or rely on color without text.", "Don't summarize missing, failed, interrupted, or incompatible evidence as zero.", "Don't replace aligned records with interchangeable metric-card grids at page level.", "Don't add decorative gradients, glass effects, neon glows, or terminal styling to signal technical credibility."]
+  }
+}
