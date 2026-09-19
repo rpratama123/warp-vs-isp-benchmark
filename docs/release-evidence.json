@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "gates": [
+    { "id": "physical-windows-x64", "stage": "pre-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null },
+    { "id": "physical-unraid-linux-x86_64", "stage": "pre-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null },
+    { "id": "physical-macos-intel", "stage": "pre-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null },
+    { "id": "physical-macos-apple-silicon", "stage": "pre-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null },
+    { "id": "indosat-peak", "stage": "pre-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null },
+    { "id": "indosat-off-peak", "stage": "pre-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null },
+    { "id": "independent-final-release-asset-verification", "stage": "post-build", "complete": false, "version": null, "reviewed_at": null, "reviewer": null, "evidence_references": [], "artifact_sha256": null }
+  ]
+}

@@ -1,0 +1,39 @@
+name: Release readiness bundle
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - name: Require a matching version tag
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: test "${GITHUB_REF_NAME#v}" = "$(tr -d '\r\n' < VERSION)"
+      - run: npm ci
+      - run: npm test
+      - run: npm audit --omit=optional
+      - run: node scripts/package-release.mjs --check
+      - run: node scripts/package-release.mjs
+      - name: Upload readiness bundle (not a GitHub Release)
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        with:
+          name: warp-vs-isp-benchmark-readiness-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+
+# This workflow intentionally does not publish a GitHub Release. --stable is a
+# nonwriting pre-publication eligibility check; candidate bytes need independent
+# verification and a recorded post-build evidence gate before publication.

@@ -1,6 +1,6 @@
 {
   "name": "warp-vs-isp-benchmark",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Contracts and validation for the WARP versus ISP benchmark",
   "type": "module",
@@ -12,7 +12,9 @@
     "test:viewer": "node scripts/embed-viewer-schema.mjs --check && node tests/viewer.tests.mjs",
     "test:bash": "bash tests/warp-bench.tests.sh",
     "test:powershell": "pwsh -NoLogo -NoProfile -File tests/warp-bench.tests.ps1",
-    "test": "npm run test:contracts && npm run test:runner && npm run test:viewer && npm run test:bash"
+    "test:release": "node tests/package-release.tests.mjs",
+    "package:release": "node scripts/package-release.mjs",
+    "test": "npm run test:contracts && npm run test:runner && npm run test:viewer && npm run test:bash && npm run test:release"
   },
   "devDependencies": {
     "ajv": "8.20.0"
